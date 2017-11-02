@@ -1,0 +1,14 @@
+{
+  "roots": [
+    {
+      "name": "temp",
+      "path": "c:/temp"
+    },
+    {
+      "name": "incoming",
+      "path": "c:/incoming"
+    }
+  ],
+  "binding": "0.0.0.0:8000"
+}
+

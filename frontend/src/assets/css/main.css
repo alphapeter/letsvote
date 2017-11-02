@@ -1,0 +1,22 @@
+html {
+  font-family: "Lucida Console", Monaco, monospace;
+  color: yellow;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  background: black;
+}
+
+button{
+  background-color: white;
+  border: none;
+  padding: 5px;
+}
+button:hover{
+  background-color: cyan;
+}
+button:disabled{
+  background: darkgray;
+  color: white;
+}
