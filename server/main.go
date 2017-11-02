@@ -3,43 +3,43 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"github.com/alphapeter/filecommander/server/cfg"
 	"github.com/alphapeter/filecommander/server/gui"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/mattn/go-sqlite3"
+	"net/http"
 )
 
-type uuid string
-type email string
+type Uuid string
+type Email string
 
-type user struct {
-	name string
-	id email
+type User struct {
+	Name string `json:"name"`
+	Id   Email  `json:"id"`
 }
 
-type vote struct {
-	score int
-	user uuid
-	option option
+type Vote struct {
+	Score  int    `json:"score"`
+	User   Uuid   `json:"user"`
+	Option Option `json:"option"`
 }
 
-type option struct{
-	id int
-	name string
-	description string
-	createdBy user
-	score int
+type Option struct {
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	CreatedBy   User   `json:"created_by"`
+	Score       int    `json:"score"`
 }
 
-type poll struct{
-	id uuid
-	name string
-	description string
-	createdBy user
-	options []option
-	votes []vote
-	hasEnded bool
+type Poll struct {
+	Id          Uuid     `json:"id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	CreatedBy   User     `json:"created_by"`
+	Options     []Option `json:"options"`
+	Votes       []Vote   `json:"votes"`
+	HasEnded    bool     `json:"has_ended"`
 }
 
 func main() {
@@ -58,14 +58,14 @@ func main() {
 
 	//mux.POST("/login", login)
 
-	mux.POST("/polls", addPoll)
-	mux.GET("/polls", getPolls)
+	mux.POST("/api/polls", addPoll)
+	mux.GET("/api/polls", getPolls)
 
-	mux.PUT("/polls/:id", updatePoll)
-	mux.GET("/polls/:id", getPoll)
+	mux.PUT("/api/polls/:id", updatePoll)
+	mux.GET("/api/polls/:id", getPoll)
 
-	mux.GET("/polls/:id/options", getOptions)
-	mux.GET("/polls/:id/options/:id", getOption)
+	mux.GET("/api/polls/:id/options", getOptions)
+	mux.GET("/api/polls/:id/options/:id", getOption)
 
 	err := http.ListenAndServe(settings.Binding, mux)
 	if err != nil {
@@ -74,12 +74,12 @@ func main() {
 
 }
 
-var polls = make(map[uuid]poll)
+var polls = make(map[Uuid]Poll)
 
 func addPoll(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	decoder := json.NewDecoder(r.Body)
-	var p poll
+	var p Poll
 
 	if err := decoder.Decode(&p); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -87,8 +87,8 @@ func addPoll(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	p.id = "dfsdf"
-	polls[p.id] = p
+	p.Id = "dfsdf"
+	polls[p.Id] = p
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(gui.Javascript)
@@ -100,8 +100,44 @@ func updatePoll(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func getPolls(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	poll1 := Poll{
+		Id: "sfdf",
+		CreatedBy: User{
+			Id:   "peter@klaesson.net",
+			Name: "324234",
+		},
+		Description: "best day ever",
+		HasEnded:    false,
+		Name:        "Innovationday 324",
+		Votes:       []Vote{},
+		Options: []Option{
+			Option{
+				Name:        "Die Welle",
+				Id:          1,
+				Description: "Autokrati",
+				CreatedBy: User{
+					Id:   "user1",
+					Name: "Alfons Åberg",
+				},
+			},
+			Option{
+				Name:        "Das experiment",
+				Id:          2,
+				Description: "",
+				CreatedBy: User{
+					Id:   "user2",
+					Name: "Riddar Kato",
+				},
+			},
+		},
+	}
+
+	// upprepar sig på alla svar, fixa metod
+	polls := []Poll{poll1}
+	j, _ := json.Marshal(polls)
+
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(gui.Javascript)
+	w.Write(j)
 }
 
 func getPoll(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
