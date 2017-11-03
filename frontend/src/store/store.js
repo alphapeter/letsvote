@@ -5,7 +5,9 @@ import ui from './modules/uiState'
 
 Vue.use(Vuex)
 
-const state = { }
+const state = {
+  polls: []
+}
 
 const actions = {
   init: function ({commit}) {

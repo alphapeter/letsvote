@@ -1,24 +1,30 @@
 <template>
   <div id="app">
-    <div class="fileviews">
-
-    </div>
+    <pageHeader></pageHeader>
+    <activePolls></activePolls>
+    <historicPolls></historicPolls>
     <dialogs></dialogs>
-
   </div>
 </template>
 
 <script>
+  import ActivePolls from './components/ActivePolls.vue'
+  import HistoricPolls from './components/HistoricPolls.vue'
   import Dialogs from './components/Dialogs/Dialogs.vue'
+  import PageHeader from './components/PageHeader.vue'
+  import Poll from './components/Poll.vue'
 
   export default {
     name: 'app',
     components: {
-      Dialogs
+      ActivePolls,
+      HistoricPolls,
+      Dialogs,
+      PageHeader,
+      Poll
     },
     data () {
       return {
-        polls: []
       }
     },
     methods: {
@@ -26,19 +32,9 @@
     },
     created () {
       this.$store.dispatch('init')
-      let vm = this
-      this.eventListener = (e) => {
-        if (vm.$store.state.ui.state !== '') {
-          return
-        }
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-          console.log('keypress')
-        }
-      }
-      window.addEventListener('keydown', this.eventListener)
     },
     destroyed () {
-      window.removeEventListener('keydown', this.eventListener)
+
     }
   }
 </script>

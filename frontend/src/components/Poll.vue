@@ -1,12 +1,12 @@
 <template>
     <div>
-
+        <div>{{poll.name}}</div>
+        <div>{{poll.description}}</div>
     </div>
 </template>
 
 <script>
   export default {
-    name: 'poll',
     props: ['poll']
   }
 </script>
