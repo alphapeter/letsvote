@@ -100,8 +100,21 @@ func updatePoll(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func getPolls(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	poll1 := Poll{
-		Id: "sfdf",
+	poll := createPoll()
+
+	// upprepar sig på alla svar, fixa metod
+	polls := []Poll{poll, poll, poll, poll, poll}
+	j, _ := json.Marshal(polls)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
+}
+var id = 1
+func createPoll() Poll {
+	uuid := fmt.Sprint("dsdf%d", id)
+	id++
+	return Poll{
+		Id: Uuid(uuid),
 		CreatedBy: User{
 			Id:   "peter@klaesson.net",
 			Name: "324234",
@@ -131,13 +144,6 @@ func getPolls(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			},
 		},
 	}
-
-	// upprepar sig på alla svar, fixa metod
-	polls := []Poll{poll1}
-	j, _ := json.Marshal(polls)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(j)
 }
 
 func getPoll(w http.ResponseWriter, r *http.Request, params httprouter.Params) {

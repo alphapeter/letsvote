@@ -23,6 +23,8 @@
 <style scoped>
   .polls {
     margin: 10px;
+    position: relative;
+    clear: both;
   }
   .poll {
     width: 300px;
@@ -32,5 +34,6 @@
     border-radius: 5px;
     padding: 15px;
     margin: 20px;
+    float: left;
   }
 </style>

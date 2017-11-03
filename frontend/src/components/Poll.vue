@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="poll">
         <div>{{poll.name}}</div>
         <div>{{poll.description}}</div>
     </div>
@@ -12,5 +12,7 @@
 </script>
 
 <style scoped>
-
+  .poll {
+    width: 100%;
+  }
 </style>
