@@ -11,7 +11,7 @@ export const API = {
     })
   },
   post (url, payload) {
-    return fetch('polls', {
+    return fetch(url, {
       credentials: 'include',
       method: 'POST',
       body: JSON.stringify(payload)
@@ -20,7 +20,7 @@ export const API = {
     })
   },
   put (url, payload) {
-    return fetch('polls', {
+    return fetch(url, {
       credentials: 'include',
       method: 'PUT',
       body: JSON.stringify(payload)

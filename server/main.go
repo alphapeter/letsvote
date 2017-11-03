@@ -1,26 +1,25 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/alphapeter/filecommander/server/cfg"
 	"github.com/alphapeter/filecommander/server/gui"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/satori/go.uuid"
 	"net/http"
 )
 
-type Uuid string
-type Email string
-
 type User struct {
 	Name string `json:"name"`
-	Id   Email  `json:"id"`
+	Id   string `json:"id"`
 }
 
 type Vote struct {
 	Score  int    `json:"score"`
-	User   Uuid   `json:"user"`
+	User   string `json:"user"`
 	Option Option `json:"option"`
 }
 
@@ -33,17 +32,27 @@ type Option struct {
 }
 
 type Poll struct {
-	Id          Uuid     `json:"id"`
+	Id          string     `json:"id"`
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	CreatedBy   User     `json:"created_by"`
 	Options     []Option `json:"options"`
 	Votes       []Vote   `json:"votes"`
 	HasEnded    bool     `json:"has_ended"`
+	Winner      User     `json:"winner"`
 }
 
+type response struct {
+	Success bool `json:"success"`
+	Reason string `json:"reason"`
+}
+
+var db *sql.DB;
 func main() {
 	settings := cfg.GetSettings()
+	db, _ = sql.Open("sqlite3", "./letsvote.sqlite")
+	defer db.Close()
+	assertTablesCreated(db)
 
 	mux := httprouter.New()
 	mux.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -66,17 +75,35 @@ func main() {
 
 	mux.GET("/api/polls/:id/options", getOptions)
 	mux.GET("/api/polls/:id/options/:id", getOption)
+	mux.POST("/api/polls/:id/options/", addOption)
 
 	err := http.ListenAndServe(settings.Binding, mux)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+}
+func assertTablesCreated(db *sql.DB) {
+	for _, creation := range tableCreations {
+		rows, err := db.Query(`SELECT name FROM sqlite_master WHERE type='table' AND name='` + creation.tableName + `';`)
+		if err != nil {
+			panic(err.Error())
+		}
 
+		if !rows.Next() {
+			_, err := db.Exec(creation.sql)
+			checkErr(err)
+		}
+	}
 }
 
-var polls = make(map[Uuid]Poll)
+func checkErr(err error) {
+	if err != nil {
+		panic(err.Error())
+	}
+}
 
 func addPoll(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json")
 
 	decoder := json.NewDecoder(r.Body)
 	var p Poll
@@ -87,76 +114,119 @@ func addPoll(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	p.Id = "dfsdf"
-	polls[p.Id] = p
+	p.CreatedBy = User{Id: "peter@stratsys.se"}
+	p.Id = uuid.NewV4().String()
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(gui.Javascript)
+	stmt, _ := db.Prepare("insert into polls(id, name, description, createdBy) values(?,?,?,?)")
+	_, err := stmt.Exec(p.Id, p.Name, p.Description, p.CreatedBy.Id)
+
+	if err != nil {
+		response := struct {
+			Success bool `json:"success"`
+			Reason string `json:"reason"`
+		}{ false, err.Error()}
+		a, _ := json.Marshal(response)
+		w.Write([]byte(a))
+		return
+	}
+	stmt.Close()
+	response := struct {
+		Success bool `json:"success"`
+		Id string `json:"id"`
+	}{ true, p.Id}
+
+	a, _ := json.Marshal(response)
+	w.Write([]byte(a))
 }
 
 func updatePoll(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "text/javascript")
-	w.Write(gui.Javascript)
 }
 
 func getPolls(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	poll := createPoll()
-
-	// upprepar sig på alla svar, fixa metod
-	polls := []Poll{poll, poll, poll, poll, poll}
-	j, _ := json.Marshal(polls)
-
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(j)
-}
-var id = 1
-func createPoll() Poll {
-	uuid := fmt.Sprint("dsdf%d", id)
-	id++
-	return Poll{
-		Id: Uuid(uuid),
-		CreatedBy: User{
-			Id:   "peter@klaesson.net",
-			Name: "324234",
-		},
-		Description: "best day ever",
-		HasEnded:    false,
-		Name:        "Innovationday 324",
-		Votes:       []Vote{},
-		Options: []Option{
-			Option{
-				Name:        "Die Welle",
-				Id:          1,
-				Description: "Autokrati",
-				CreatedBy: User{
-					Id:   "user1",
-					Name: "Alfons Åberg",
-				},
-			},
-			Option{
-				Name:        "Das experiment",
-				Id:          2,
-				Description: "",
-				CreatedBy: User{
-					Id:   "user2",
-					Name: "Riddar Kato",
-				},
-			},
-		},
+	row, err := db.Query("select id, name, description, createdBy, hasEnded, winner from polls;")
+	if err != nil {
+		res, _ := json.Marshal(response{false, err.Error()})
+		w.Write([]byte(res))
+		return
 	}
+	polls := []Poll{}
+	for row.Next() {
+		p := Poll{}
+		row.Scan(&p.Id, &p.Name, &p.Description, &p.CreatedBy.Id, &p.HasEnded, &p.Winner.Id)
+		polls = append(polls, p)
+	}
+	res, _ := json.Marshal(polls)
+	w.Write([]byte(res))
 }
-
 func getPoll(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(gui.Javascript)
 }
 
 func getOptions(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(gui.Javascript)
 }
 
 func getOption(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(gui.Javascript)
+}
+func addOption(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json")
+}
+
+type tableCreation struct {
+	tableName string
+	sql       string
+}
+
+var tableCreations = []tableCreation{
+	{
+		tableName: "users",
+		sql: `	CREATE TABLE users
+				(
+					id TEXT NOT NULL,
+					name TEXT NOT NULL
+				);`,
+	},
+	{
+		tableName: "polls",
+		sql: ` CREATE TABLE polls
+				(
+					id TEXT PRIMARY KEY DEFAULT "" NOT NULL,
+					name TEXT DEFAULT "" NOT NULL,
+					description TEXT NOT NULL,
+					createdBy TEXT NOT NULL,
+					hasEnded INTEGER DEFAULT 0 NOT NULL,
+					winner TEXT DEFAULT "" NOT NULL
+				);
+				CREATE UNIQUE INDEX polls_name_uindex ON polls (name);
+				`,
+	},
+	{
+		tableName: "options",
+		sql: `CREATE TABLE options
+				(
+					id int NOT NULL,
+					pollId TEXT NOT NULL,
+					name TEXT DEFAULT "" NOT NULL,
+					description TEXT NOT NULL,
+					createdBy TEXT NOT NULL,
+					CONSTRAINT table_name_id_pollId_pk PRIMARY KEY (id, pollId),
+					CONSTRAINT options_polls_id_fk FOREIGN KEY (pollId) REFERENCES polls (id),
+					CONSTRAINT options_users_id_fk FOREIGN KEY (createdBy) REFERENCES users (id)
+				);`,
+	},
+	{
+		tableName: "votes",
+		sql: `	CREATE TABLE votes
+				(
+					score INT NOT NULL,
+					user TEXT NOT NULL,
+					optionId INT NOT NULL,
+					CONSTRAINT votes_users_id_fk FOREIGN KEY (user) REFERENCES users (id),
+					CONSTRAINT votes_users_id_fk FOREIGN KEY (optionId) REFERENCES users (options)
+
+				);`,
+	},
 }

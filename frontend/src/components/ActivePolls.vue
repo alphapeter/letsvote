@@ -11,20 +11,40 @@
           {{i+1}}.{{o.name}} ({{o.created_by.name}})
         </div>
       </div>
+
     </div>
     <div class="poll create">
-      <input type="text" placeholder="name">
-      <textarea placeholder="description" rows="8"></textarea>
-      <input type="button" value="create"/>
+      <input type="text" v-model="newPoll.name" placeholder="name">
+      <textarea v-model="newPoll.description" placeholder="description" rows="8"></textarea>
+      <input @click="addPoll" type="button" value="create"/>
+      {{newPoll}}
     </div>
   </div>
 </template>
 
 <script>
+  import { API } from '../api.js'
   export default {
+    props: ['a', 'b'],
+    data () {
+      return {
+        newPoll: {
+          name: '',
+          description: ''
+        }
+      }
+    },
     computed: {
       polls () {
         return this.$store.state.polls
+      }
+    },
+    methods: {
+      addPoll () {
+        API.post('api/polls', {
+          name: this.newPoll.name,
+          description: this.newPoll.description
+        })
       }
     }
   }
