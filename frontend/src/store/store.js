@@ -9,16 +9,6 @@ const state = {
   polls: []
 }
 
-const actions = {
-  init: function ({commit}) {
-    API.getPolls()
-      .then((polls) => {
-        commit('init', polls)
-        commit('loadingComplete')
-      })
-  }
-}
-
 const getters = { }
 export const store = new Vuex.Store({
   state: state,
@@ -31,7 +21,18 @@ export const store = new Vuex.Store({
       state.selectedPoll = state.polls[message.pollId]
     }
   },
-  actions: actions,
+  actions: {
+    init ({commit}) {
+      API.getPolls()
+        .then((polls) => {
+          commit('init', polls)
+          commit('loadingComplete')
+        })
+    },
+    login ({commit}) {
+      commit('login')
+    }
+  },
   modules: {
     ui
   }

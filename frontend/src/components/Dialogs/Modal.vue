@@ -63,7 +63,7 @@
     left: calc(50% - 40em / 2);
     border: 6px double white;
     width: 40em;
-    height: 6em;
+    height: 12em;
     background-color: gray;
     margin-left: auto;
     margin-right: auto;

@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/alphapeter/filecommander/server/cfg"
-	"github.com/alphapeter/filecommander/server/gui"
+	"github.com/alphapeter/letsvote/server/cfg"
+	"github.com/alphapeter/letsvote/server/gui"
+	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/satori/go.uuid"
@@ -13,51 +15,79 @@ import (
 )
 
 type User struct {
-	Name string `json:"name"`
-	Id   string `json:"id"`
+	Id   string `json:"id", gorm:"primary_key"`
+	Name string `json:"name"", gorm:"type:varchar(50)"`
 }
 
 type Vote struct {
-	Score  int    `json:"score"`
-	User   string `json:"user"`
-	Option Option `json:"option"`
+	Score    int    `json:"score"`
+	UserId   string `gorm:"primary_key" sql:"type:text REFERENCES users(id)"`
+	User     string `json:"user", gorm:"ForeignKey:Id;AssociationForeignKey:UserId"`
+	OptionId string `gorm:"primary_key"`
+	Option   Option `json:"option" gorm:"ForeignKey:Id;AssociationForeignKey:OptionId"`
+	PollId   string `sql:"type:text REFERENCES polls(id)"`
 }
 
 type Option struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	CreatedBy   User   `json:"created_by"`
-	Score       int    `json:"score"`
+	Id              uint   `json:"id", gorm:"primary_key"`
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	CreatedBy       User   `json:"created_by" gorm:"ForeignKey:Id;AssociationForeignKey:CreatedByUserId"`
+	Score           uint   `json:"score"`
+	CreatedByUserId string `sql:"type:text REFERENCES users(id)"`
+	PollId          string `sql:"type:text REFERENCES polls(id)"`
 }
 
 type Poll struct {
-	Id          string     `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	CreatedBy   User     `json:"created_by"`
-	Options     []Option `json:"options"`
-	Votes       []Vote   `json:"votes"`
-	HasEnded    bool     `json:"has_ended"`
-	Winner      User     `json:"winner"`
+	Id              string         `json:"id" gorm:"primary_key"`
+	Name            string         `json:"name"`
+	Description     string         `json:"description"`
+	HasEnded        bool           `json:"has_ended"`
+	CreatedByUserId string         `sql:"type:text REFERENCES users(id)"`
+	CreatedBy       User           `json:"created_by" gorm:"ForeignKey:Id;AssociationForeignKey:CreatedByUserId"`
+	Winner          User           `json:"winner"`
+	WinnerUserId    sql.NullString `sql:"type:text REFERENCES users(id)"`
+	Options         []Option       `json:"options" gorm:"ForeignKey:PollId;AssociationForeignKey:Id"`
+	Votes           []Vote         `json:"votes" gorm:"ForeignKey:PollId;AssociationForeignKey:Id"`
+}
+type Session struct {
+	Key    string `gorm:"primary_key"`
+	UserId string `sql:"type:text REFERENCES users(id)"`
 }
 
-type response struct {
-	Success bool `json:"success"`
-	Reason string `json:"reason"`
+type ErrorResponse struct {
+	Success bool   `json:"success"`
+	Reason  string `json:"reason"`
 }
 
-var db *sql.DB;
+type userSessionResponse struct {
+	LoggedIn bool `json:"logged_in"`
+}
+
+var db *gorm.DB
+
 func main() {
 	settings := cfg.GetSettings()
-	db, _ = sql.Open("sqlite3", "./letsvote.sqlite")
-	defer db.Close()
-	assertTablesCreated(db)
+	db, _ = gorm.Open("sqlite3", "test.db")
+	db.Exec("PRAGMA foreign_keys = ON")
 
+	db.AutoMigrate(&User{}, &Poll{}, &Option{}, &Vote{}, &Session{})
+	defer db.Close()
+
+	background := context.Background()
+	auth, _ := createOffice365Auth(background)
 	mux := httprouter.New()
 	mux.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+		cookie := &http.Cookie{Name: "hej", Value: "oooh"}
+		http.SetCookie(w, cookie)
+		fmt.Println(cookie.String())
 		w.Header().Set("Content-Type", "text/html")
 		w.Write(gui.Html)
+	})
+
+	mux.GET("/logout", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
 	})
 
 	mux.GET("/static/js/app.js", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -65,40 +95,50 @@ func main() {
 		w.Write(gui.Javascript)
 	})
 
-	//mux.POST("/login", login)
-
-	mux.POST("/api/polls", addPoll)
+	mux.POST("/api/polls", addPoll) //Auth
 	mux.GET("/api/polls", getPolls)
 
-	mux.PUT("/api/polls/:id", updatePoll)
+	mux.PUT("/api/polls/:id", updatePoll) //Auth
 	mux.GET("/api/polls/:id", getPoll)
 
 	mux.GET("/api/polls/:id/options", getOptions)
 	mux.GET("/api/polls/:id/options/:id", getOption)
-	mux.POST("/api/polls/:id/options/", addOption)
+	mux.POST("/api/polls/:id/options/", addOption) //Auth
+
+	mux.GET("/auth/login", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		c := new(http.Cookie)
+		http.SetCookie(w, c)
+		auth.login("hej", w, r)
+	})
+
+	mux.GET("/auth/o365/callback", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		auth.login("hej", w, r)
+	})
+
+	mux.GET("/auth/hasValidUserSession", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		w.Header().Set("Content-Type", "application/json")
+		if _, err := r.Cookie("lv_session"); err != nil {
+			c := http.Cookie{
+				Name:   "lv_session",
+				Value:  uuid.NewV4().String(),
+			}
+			http.SetCookie(w, &c)
+			f, _ := json.Marshal(userSessionResponse{
+				LoggedIn: false,
+			})
+			w.Write([]byte(f))
+			return
+		}
+
+		s, _ := json.Marshal(userSessionResponse{
+			LoggedIn: true,
+		})
+		w.Write([]byte(s))
+	})
 
 	err := http.ListenAndServe(settings.Binding, mux)
 	if err != nil {
 		fmt.Println(err.Error())
-	}
-}
-func assertTablesCreated(db *sql.DB) {
-	for _, creation := range tableCreations {
-		rows, err := db.Query(`SELECT name FROM sqlite_master WHERE type='table' AND name='` + creation.tableName + `';`)
-		if err != nil {
-			panic(err.Error())
-		}
-
-		if !rows.Next() {
-			_, err := db.Exec(creation.sql)
-			checkErr(err)
-		}
-	}
-}
-
-func checkErr(err error) {
-	if err != nil {
-		panic(err.Error())
 	}
 }
 
@@ -114,26 +154,23 @@ func addPoll(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	p.CreatedBy = User{Id: "peter@stratsys.se"}
+	p.CreatedByUserId = "peter@stratsys.se"
 	p.Id = uuid.NewV4().String()
-
-	stmt, _ := db.Prepare("insert into polls(id, name, description, createdBy) values(?,?,?,?)")
-	_, err := stmt.Exec(p.Id, p.Name, p.Description, p.CreatedBy.Id)
+	err := db.Create(&p).Error
 
 	if err != nil {
 		response := struct {
-			Success bool `json:"success"`
-			Reason string `json:"reason"`
-		}{ false, err.Error()}
+			Success bool   `json:"success"`
+			Reason  string `json:"reason"`
+		}{false, err.Error()}
 		a, _ := json.Marshal(response)
 		w.Write([]byte(a))
 		return
 	}
-	stmt.Close()
 	response := struct {
-		Success bool `json:"success"`
-		Id string `json:"id"`
-	}{ true, p.Id}
+		Success bool   `json:"success"`
+		Id      string `json:"id"`
+	}{true, p.Id}
 
 	a, _ := json.Marshal(response)
 	w.Write([]byte(a))
@@ -145,18 +182,8 @@ func updatePoll(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func getPolls(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
-	row, err := db.Query("select id, name, description, createdBy, hasEnded, winner from polls;")
-	if err != nil {
-		res, _ := json.Marshal(response{false, err.Error()})
-		w.Write([]byte(res))
-		return
-	}
 	polls := []Poll{}
-	for row.Next() {
-		p := Poll{}
-		row.Scan(&p.Id, &p.Name, &p.Description, &p.CreatedBy.Id, &p.HasEnded, &p.Winner.Id)
-		polls = append(polls, p)
-	}
+	db.Find(&polls)
 	res, _ := json.Marshal(polls)
 	w.Write([]byte(res))
 }
@@ -173,60 +200,4 @@ func getOption(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 }
 func addOption(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
-}
-
-type tableCreation struct {
-	tableName string
-	sql       string
-}
-
-var tableCreations = []tableCreation{
-	{
-		tableName: "users",
-		sql: `	CREATE TABLE users
-				(
-					id TEXT NOT NULL,
-					name TEXT NOT NULL
-				);`,
-	},
-	{
-		tableName: "polls",
-		sql: ` CREATE TABLE polls
-				(
-					id TEXT PRIMARY KEY DEFAULT "" NOT NULL,
-					name TEXT DEFAULT "" NOT NULL,
-					description TEXT NOT NULL,
-					createdBy TEXT NOT NULL,
-					hasEnded INTEGER DEFAULT 0 NOT NULL,
-					winner TEXT DEFAULT "" NOT NULL
-				);
-				CREATE UNIQUE INDEX polls_name_uindex ON polls (name);
-				`,
-	},
-	{
-		tableName: "options",
-		sql: `CREATE TABLE options
-				(
-					id int NOT NULL,
-					pollId TEXT NOT NULL,
-					name TEXT DEFAULT "" NOT NULL,
-					description TEXT NOT NULL,
-					createdBy TEXT NOT NULL,
-					CONSTRAINT table_name_id_pollId_pk PRIMARY KEY (id, pollId),
-					CONSTRAINT options_polls_id_fk FOREIGN KEY (pollId) REFERENCES polls (id),
-					CONSTRAINT options_users_id_fk FOREIGN KEY (createdBy) REFERENCES users (id)
-				);`,
-	},
-	{
-		tableName: "votes",
-		sql: `	CREATE TABLE votes
-				(
-					score INT NOT NULL,
-					user TEXT NOT NULL,
-					optionId INT NOT NULL,
-					CONSTRAINT votes_users_id_fk FOREIGN KEY (user) REFERENCES users (id),
-					CONSTRAINT votes_users_id_fk FOREIGN KEY (optionId) REFERENCES users (options)
-
-				);`,
-	},
 }

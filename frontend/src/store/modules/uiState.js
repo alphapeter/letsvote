@@ -10,9 +10,15 @@ const mutations = {
   loading (state) {
     state.state = 'loading'
   },
+  login (state) {
+    state.state = 'login'
+  },
   error (state, error) {
     state.state = 'error'
     state.error = error
+  },
+  commandCanceled (state) {
+    state.state = ''
   }
 }
 

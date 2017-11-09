@@ -1,12 +1,17 @@
 <template>
   <div class="header">
     <h1 class="headerTitle">Let's vote!</h1>
-    <input class="loginButton" type="button" value="Login"/>
+    <input class="loginButton" @click="login" type="button" value="Login"/>
   </div>
 </template>
 
 <script>
   export default {
+    methods: {
+      login () {
+        this.$store.dispatch('login')
+      }
+    }
   }
 </script>
 
