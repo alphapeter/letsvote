@@ -9,7 +9,7 @@ const state = {
   polls: []
 }
 
-const getters = { }
+const getters = {}
 export const store = new Vuex.Store({
   state: state,
   getters: getters,
@@ -19,6 +19,9 @@ export const store = new Vuex.Store({
     },
     selectPoll (state, message) {
       state.selectedPoll = state.polls[message.pollId]
+    },
+    addPoll (state, poll) {
+      state.polls.push(poll)
     }
   },
   actions: {

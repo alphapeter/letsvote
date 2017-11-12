@@ -1,7 +1,7 @@
 <template>
   <div class="polls">
     <h2>
-      Aktiva omröstningar
+      Active polls
     </h2>
     <div class="poll" v-for="poll in polls" :key="poll.id">
       <div class="name">{{poll.name}}</div>
@@ -41,9 +41,22 @@
     },
     methods: {
       addPoll () {
+        // todo should be an action in the store to be dispatched
+        var store = this.$store
+        var that = this
         API.post('api/polls', {
           name: this.newPoll.name,
           description: this.newPoll.description
+        }).then((response) => {
+          if (response.success) {
+            store.commit('addPoll', response.poll)
+            that.newPoll.name = ''
+            that.newPoll.description = ''
+          } else {
+            store.commit('error', { message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(', code: 500 })
+          }
+        }).catch((reason) => {
+          store.commit('error', { message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(', code: reason.code })
         })
       }
     }

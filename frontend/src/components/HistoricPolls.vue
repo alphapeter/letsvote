@@ -1,7 +1,7 @@
 <template>
   <div class="polls">
     <h2>
-      Tidigare omröstningar
+      Previous polls
     </h2>
     <div class="poll" v-for="poll in polls" :key="poll.id">
       <div class="name">{{poll.name}}</div>

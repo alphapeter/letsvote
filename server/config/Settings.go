@@ -1,20 +1,14 @@
-package cfg
+package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"encoding/json"
 )
 
 type Settings struct {
-	Roots []Root `json: "root"`
 	Binding string `json: binding`
-}
-
-type Root struct {
-	Name string `json: "name"`
-	Path string `json: "path"`
 }
 
 var settings *Settings = nil
@@ -24,24 +18,6 @@ func GetSettings() Settings {
 		settings = getSettingsFromFile()
 	}
 	return *settings
-}
-
-func GetPathForRoot(name string) (string, error) {
-	s := GetSettings()
-	for _, r := range s.Roots {
-		if r.Name == name {
-			return r.Path, nil
-		}
-	}
-	return "", RootNotFoundError{name}
-}
-
-type RootNotFoundError struct {
-	rootName string
-}
-
-func (e RootNotFoundError) Error() string {
-	return "Root " + e.rootName + " not configured!"
 }
 
 func getSettingsFromFile() *Settings {
