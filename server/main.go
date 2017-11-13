@@ -1,14 +1,12 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"github.com/alphapeter/letsvote/server/config"
 	"github.com/alphapeter/letsvote/server/webui"
 	"github.com/alphapeter/letsvote/server/polls"
 	"github.com/alphapeter/letsvote/server/users"
 	"github.com/gin-gonic/gin"
-	"github.com/satori/go.uuid"
 	"net/http"
 	"github.com/alphapeter/letsvote/server/auth"
 )
@@ -36,11 +34,9 @@ func main() {
 	router.GET("/api/polls/:id/options/:id", polls.GetOption)
 	router.POST("/api/polls/:id/options/", polls.AddOption) //Auth
 
-	router.GET("/logout", auth.LogoutHandler)
-	router.GET("/auth/login", auth.LoginHandler)
 
-	router.GET("/auth/o365/callback", auth.Callback)
-
+	router.GET("/auth/login/:provider", auth.LoginHandler)
+	router.GET("/auth/callback/:provider", auth.CallbackHandler)
 	router.GET("/auth/hasValidUserSession", auth.HasValidUser)
 
 	err := http.ListenAndServe(settings.Binding, router)

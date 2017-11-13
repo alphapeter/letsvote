@@ -2,19 +2,16 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"github.com/coreos/go-oidc"
 	"golang.org/x/oauth2"
 	"log"
 	"net/http"
+	"fmt"
 )
 
-
-func Init() {
-
-}
-func CreateOffice365Auth(ctx context.Context) (Office365Auth, error) {
-	provider, err := oidc.NewProvider(ctx, "")
+func CreateOffice365Auth() (Office365Auth, error) {
+	background := context.Background()
+	provider, err := oidc.NewProvider(background, "")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,12 +25,12 @@ func CreateOffice365Auth(ctx context.Context) (Office365Auth, error) {
 		ClientID:     "",
 		ClientSecret: "",
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  "http://localhost:5556/auth/o365/callback",
+		RedirectURL:  "http://localhost:8080/auth/callback/o365",
 		Scopes:       []string{oidc.ScopeOpenID, "profile"},
 	}
 
 	return Office365Auth{
-		ctx:      ctx,
+		ctx:      background,
 		verifier: verifier,
 		config:   config,
 	}, nil
