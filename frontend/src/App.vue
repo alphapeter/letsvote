@@ -1,27 +1,28 @@
 <template>
   <div id="app">
     <pageHeader></pageHeader>
+    <left-panel></left-panel>
+    <right-panel></right-panel>
     <activePolls></activePolls>
-    <historicPolls></historicPolls>
     <dialogs></dialogs>
   </div>
 </template>
 
 <script>
   import ActivePolls from './components/ActivePolls.vue'
-  import HistoricPolls from './components/HistoricPolls.vue'
   import Dialogs from './components/Dialogs/Dialogs.vue'
   import PageHeader from './components/PageHeader.vue'
-  import Poll from './components/Poll.vue'
+  import LeftPanel from './components/LeftPanel.vue'
+  import RightPanel from './components/RightPanel.vue'
 
   export default {
     name: 'app',
     components: {
       ActivePolls,
-      HistoricPolls,
       Dialogs,
       PageHeader,
-      Poll
+      LeftPanel,
+      RightPanel
     },
     data () {
       return {
@@ -32,6 +33,12 @@
     },
     created () {
       this.$store.dispatch('init')
+
+      var url = 'ws://' + window.location.host + '/tap'
+      var ws = new WebSocket(url)
+      ws.onmessage = function (message) {
+        console.log(message)
+      }
     },
     destroyed () {
 

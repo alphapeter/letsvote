@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"github.com/alphapeter/letsvote/server/auth"
+	"github.com/alphapeter/letsvote/server/tap"
 )
 
 func main() {
@@ -16,29 +17,32 @@ func main() {
 	config.InitDb()
 	users.InitModels()
 	polls.InitModels()
-	auth.Init()
+	auth.Init(settings.OpenIdConnectProviders)
 	defer config.DB.Close()
 
 	router := gin.Default()
+	authorized := router.Group("/", auth.CookieAuth())
 
 	router.GET("/", webui.HtmlHandler)
 	router.GET("/static/js/app.js", webui.JsHandler)
 
-	router.POST("/api/polls", polls.AddPoll) //Auth
+	router.GET("/api/activeusers", tap.GetConnectedUsers)
+
+	authorized.POST("/api/polls", polls.AddPoll)
 	router.GET("/api/polls", polls.GetPolls)
 
-	router.PUT("/api/polls/:id", polls.UpdatePoll) //Auth
+	authorized.PUT("/api/polls/:id", polls.UpdatePoll)
 	router.GET("/api/polls/:id", polls.GetPoll)
 
 	router.GET("/api/polls/:id/options", polls.GetOptions)
 	router.GET("/api/polls/:id/options/:id", polls.GetOption)
-	router.POST("/api/polls/:id/options/", polls.AddOption) //Auth
-
+	authorized.POST("/api/polls/:id/options", polls.AddOption)
 
 	router.GET("/auth/login/:provider", auth.LoginHandler)
 	router.GET("/auth/callback/:provider", auth.CallbackHandler)
-	router.GET("/auth/hasValidUserSession", auth.HasValidUser)
+	router.GET("/auth/logout", auth.LogoutHandler)
 
+	tap.Init(router)
 	err := http.ListenAndServe(settings.Binding, router)
 	if err != nil {
 		fmt.Println(err.Error())

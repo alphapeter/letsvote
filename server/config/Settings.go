@@ -7,8 +7,16 @@ import (
 	"os"
 )
 
+type OpenIdConnectProvider struct {
+	Type string `json:"type"`
+	IssuerUrl string `json:"issuer_url"`
+	ClientId string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+}
+
 type Settings struct {
-	Binding string `json: binding`
+	Binding string `json:"binding""`
+	OpenIdConnectProviders []OpenIdConnectProvider `json:"open_id_connect_providers"`
 }
 
 var settings *Settings = nil

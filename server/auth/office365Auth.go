@@ -7,25 +7,28 @@ import (
 	"log"
 	"net/http"
 	"fmt"
+	"github.com/alphapeter/letsvote/server/config"
+	"errors"
+	"github.com/alphapeter/letsvote/server/users"
 )
 
-func CreateOffice365Auth() (Office365Auth, error) {
+func CreateOffice365Auth(settings config.OpenIdConnectProvider) (Office365Auth, error) {
 	background := context.Background()
-	provider, err := oidc.NewProvider(background, "")
+	provider, err := oidc.NewProvider(background, settings.IssuerUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
 	oidcConfig := &oidc.Config{
-		ClientID:          "",
+		ClientID:          settings.ClientId,
 		SkipClientIDCheck: true,
 	}
 	verifier := provider.Verifier(oidcConfig)
 
 	config := oauth2.Config{
-		ClientID:     "",
-		ClientSecret: "",
+		ClientID:     settings.ClientId,
+		ClientSecret: settings.ClientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  "http://localhost:8080/auth/callback/o365",
+		RedirectURL:  "http://localhost:8080/auth/callback/office365",
 		Scopes:       []string{oidc.ScopeOpenID, "profile"},
 	}
 
@@ -36,44 +39,39 @@ func CreateOffice365Auth() (Office365Auth, error) {
 	}, nil
 }
 
-//http.HandleFunc("/",
 func (auth *Office365Auth) Login(state string, w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, auth.config.AuthCodeURL(state), http.StatusFound)
 }
 
-//http.HandleFunc("/auth/o365/callback",
-func (auth *Office365Auth) AuthResponse(state string, w http.ResponseWriter, r *http.Request) {
-	if r.URL.Query().Get("state") != state {
-		http.Error(w, "state did not match", http.StatusBadRequest)
-		return
+func (auth *Office365Auth) AuthResponse(state string, w http.ResponseWriter, r *http.Request) (users.User, error){
+	user := users.User{}
+	s := r.URL.Query().Get("state")
+	if s != state {
+		return user, errors.New("state did not match")
 	}
-
 	oauth2Token, err := auth.config.Exchange(auth.ctx, r.URL.Query().Get("code"))
 	if err != nil {
-		http.Error(w, "Failed to exchange token: "+err.Error(), http.StatusInternalServerError)
-		return
+		return user, errors.New("Failed to exchange token: "+err.Error())
 	}
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 	if !ok {
-		http.Error(w, "No id_token field in oauth2 token.", http.StatusInternalServerError)
-		return
+		return user, errors.New("No id_token field in oauth2 token.")
 	}
 	idToken, err := auth.verifier.Verify(auth.ctx, rawIDToken)
 	if err != nil {
-		http.Error(w, "Failed to verify ID Token: "+err.Error(), http.StatusInternalServerError)
-		return
+		return user, errors.New("Failed to verify ID Token: "+err.Error())
 	}
 
-	v := Office365claims{}
-	err = idToken.Claims(&v)
+	claims := Office365claims{}
+	err = idToken.Claims(&claims)
 	if err != nil {
 		fmt.Print(err.Error())
 	}
-	fmt.Printf(v.Upn)
+	fmt.Printf(claims.Upn)
 
-	//set cookie
-	w.Write([]byte(v.Name))
-	//http.Redirect(w, r, "/", http.StatusFound)
+	user.Id = claims.Oid
+	user.Name = claims.Name
+	user.Email = claims.UniqueName
 
-	//(data)
+	return user, nil
 }

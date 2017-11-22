@@ -4,11 +4,11 @@ import (
 	"database/sql"
 	"github.com/alphapeter/letsvote/server/config"
 	"github.com/alphapeter/letsvote/server/users"
+	"time"
 )
 
 func InitModels() {
 	config.DB.AutoMigrate(&Poll{}, &Option{}, &Vote{})
-
 }
 
 type Vote struct {
@@ -21,13 +21,15 @@ type Vote struct {
 }
 
 type Option struct {
-	Id              uint       `json:"id", gorm:"primary_key"`
+	Id              string     `json:"id", gorm:"primary_key"`
 	Name            string     `json:"name"`
 	Description     string     `json:"description"`
 	CreatedBy       users.User `json:"created_by" gorm:"ForeignKey:Id;AssociationForeignKey:CreatedByUserId"`
 	Score           uint       `json:"score"`
-	CreatedByUserId string     `json="-" sql:"type:text REFERENCES users(id)"`
-	PollId          string     `json="-" sql:"type:text REFERENCES polls(id)"`
+	CreatedByUserId string     `json:"-" sql:"type:text REFERENCES users(id)"`
+	PollId          string     `json:"pollId" sql:"type:text REFERENCES polls(id)"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
 }
 
 type Poll struct {
@@ -37,8 +39,10 @@ type Poll struct {
 	HasEnded        bool           `json:"has_ended"`
 	CreatedByUserId string         `json:"-" sql:"type:text REFERENCES users(id)"`
 	CreatedBy       users.User     `json:"created_by" gorm:"ForeignKey:Id;AssociationForeignKey:CreatedByUserId"`
-	Winner          users.User     `json:"winner"`
 	WinnerUserId    sql.NullString `json:"-" sql:"type:text REFERENCES users(id)"`
+	Winner          users.User     `json:"winner" gorm:"ForeignKey:Id;AssociationForeignKey:WinnerUserId"`
 	Options         []Option       `json:"options" gorm:"ForeignKey:PollId;AssociationForeignKey:Id"`
 	Votes           []Vote         `json:"votes" gorm:"ForeignKey:PollId;AssociationForeignKey:Id"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
 }

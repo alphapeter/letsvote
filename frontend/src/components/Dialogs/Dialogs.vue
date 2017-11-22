@@ -7,13 +7,11 @@
 <script>
   import WaitDialog from './WaitDialog.vue'
   import ErrorDialog from './ErrorDialog.vue'
-  import LoginDialog from './LoginDialog.vue'
 
   export default {
     components: {
       WaitDialog,
-      ErrorDialog,
-      LoginDialog
+      ErrorDialog
     }
   }
 </script>

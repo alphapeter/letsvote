@@ -29,7 +29,9 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '',
     proxyTable: {
-      "/api": "http://localhost:8000"
+      "/api": "http://localhost:8000",
+      "/tap": {target:'http://localhost:8000', ws: true},
+      "/auth": "http://localhost:8000"
     },
     // CSS Sourcemaps off by default because relative paths are "buggy"
     // with this option, according to the CSS-Loader README

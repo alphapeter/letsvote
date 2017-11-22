@@ -3,29 +3,22 @@
     <h2>
       Active polls
     </h2>
-    <div class="poll" v-for="poll in polls" :key="poll.id">
-      <div class="name">{{poll.name}}</div>
-      <div class="description">{{poll.description}}</div>
-      <div class="options" v-for="(o, i) in poll.options">
-        <div>
-          {{i+1}}.{{o.name}} ({{o.created_by.name}})
-        </div>
-      </div>
-
-    </div>
+    <poll v-for="poll in polls" :key="poll.id" :poll="poll"></poll>
     <div class="poll create">
-      <input type="text" v-model="newPoll.name" placeholder="name">
-      <textarea v-model="newPoll.description" placeholder="description" rows="8"></textarea>
-      <input @click="addPoll" type="button" value="create"/>
-      {{newPoll}}
+      <input type="text" v-model="newPoll.name" placeholder="Create a new poll...">
+      <textarea v-if="newPoll.name" v-model="newPoll.description" placeholder="description" rows="8"></textarea>
+      <input v-if="newPoll.name" @click="addPoll" type="button" value="create"/>
     </div>
   </div>
 </template>
 
 <script>
   import { API } from '../api.js'
+  import Poll from './Poll.vue'
   export default {
-    props: ['a', 'b'],
+    components: {
+      Poll
+    },
     data () {
       return {
         newPoll: {
@@ -63,27 +56,25 @@
   }
 </script>
 
-<style scoped>
+<style>
   .polls {
-    margin: 10px;
+    position: relative;
+    left: 200px;
+    margin-top: 100px;
+    margin-left: 10px;
+    margin-right: 10px;
     position: relative;
     clear: both;
-  }
-  .poll {
-    width: 300px;
-    height: 300px;
-    background-color: blanchedalmond;
-    border: 1px solid grey;
-    border-radius: 5px;
-    padding: 15px;
-    margin: 20px;
-    float: left;
-    position: relative;
   }
 
   .poll.create input[type=text], textarea {
     width: calc(100% - 10px);
     margin: 5px;
+    border: none;
+  }
+
+  .poll.create input[type=text] {
+    font-size: 16px;
   }
 
   .poll.create input[type=button] {
@@ -95,8 +86,22 @@
   .name {
     font-weight: bolder;
   }
+  .created {
+    position: absolute;
+    right: 10px;
+    top: 2px
+  }
   .description {
     font-style: italic;
     margin: 10px;
+  }
+  .poll {
+    width: calc(100% - 400px);
+    background-color: #FFF;
+    margin-bottom: 20px;
+    float: left;
+    position: relative;
+    border: 1px solid #e9e8e8;
+    border-radius: 5px;
   }
 </style>

@@ -22,6 +22,10 @@ export const store = new Vuex.Store({
     },
     addPoll (state, poll) {
       state.polls.push(poll)
+    },
+    addOption (state, option) {
+      var poll = state.polls.find(poll => poll.id === option.pollId)
+      poll.options.push(option)
     }
   },
   actions: {
