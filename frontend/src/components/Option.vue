@@ -2,7 +2,7 @@
     <div class="option">
       <img :src="profilePicture"/>
       <span>{{option.name}}</span>
-      <input class="deleteOptionButton" type="button" name="delete" value="delete option" @click="deleteOption"/>
+      <input v-if="createdByMe" class="deleteOptionButton" type="button" name="delete" value="delete option" @click="deleteOption"/>
     </div>
 </template>
 
@@ -21,6 +21,9 @@
       },
       profilePicture () {
         return gravatar.profilePicture(this.option.created_by)
+      },
+      createdByMe () {
+        return this.$store.state.me && this.option.created_by.id === this.$store.state.me.id
       }
     },
     methods: {

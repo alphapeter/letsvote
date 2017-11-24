@@ -4,7 +4,7 @@
       Active polls
     </h2>
     <poll v-for="poll in polls" :key="poll.id" :poll="poll"></poll>
-    <div class="poll create">
+    <div v-if="isLoggedIn" class="poll create">
       <input type="text" v-model="newPoll.name" placeholder="Create a new poll...">
       <textarea v-if="newPoll.name" v-model="newPoll.description" placeholder="description" rows="2"></textarea>
       <input v-if="newPoll.name" @click="addPoll" type="button" value="create"/>
@@ -30,6 +30,9 @@
     computed: {
       polls () {
         return this.$store.state.polls
+      },
+      isLoggedIn () {
+        return this.$store.state.me
       }
     },
     methods: {

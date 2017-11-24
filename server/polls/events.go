@@ -46,6 +46,7 @@ func FetchPoll(id string) (Poll, error) {
 		Preload("CreatedBy").
 		Preload("Winner").
 		Preload("Votes").
+		Preload("Options.CreatedBy").
 		First(&poll, "id = ?", id).Error
 	return poll, err
 }
@@ -54,7 +55,6 @@ func FetchOption(id string) (Option, error) {
 	var option Option
 	err := config.DB.
 		Preload("CreatedBy").
-		Preload("Options.CreatedBy").
 		First(&option, "id = ?", id).Error
 	return option, err
 }

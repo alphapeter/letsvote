@@ -7,7 +7,8 @@ Vue.use(Vuex)
 
 const state = {
   polls: [],
-  activeUsers: []
+  activeUsers: [],
+  me: null
 }
 
 const getters = {}
@@ -15,6 +16,9 @@ export const store = new Vuex.Store({
   state: state,
   getters: getters,
   mutations: {
+    initUser (state, user) {
+      this.state.me = user
+    },
     init (state, polls) {
       this.state.polls = polls
     },
@@ -49,7 +53,8 @@ export const store = new Vuex.Store({
     }
   },
   actions: {
-    init ({commit}) {
+    init ({commit}, user) {
+      commit('initUser', user)
       API.getPolls()
         .then((polls) => {
           commit('init', polls)

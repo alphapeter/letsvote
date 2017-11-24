@@ -3,15 +3,16 @@
     <div class="header">
       <span class="name">{{poll.name}}</span>
       <span class="created" :title="createdBy">{{printDate}}</span>
-      <input class="deletePollButton" type="button" name="Delete poll" @click="deletePoll" value="Delete poll"/>
+      <input v-if="createdByMe" class="deletePollButton" type="button" name="Delete poll" @click="deletePoll" value="Delete poll"/>
     </div>
     <div class="description">{{poll.description}}</div>
     <hr/>
+    <div v-if="!poll.options.length">no options yet...</div>
     <poll-option v-for="option in poll.options" :option="option" :key="option.id"></poll-option>
-    <div v-if="!poll.has_ended">
-      <hr/>
-      <div  class="option create">
-        <img src="https://www.gravatar.com/avatar/dfsdf?s=24">
+    <div v-if="!poll.has_ended && isLoggedIn">
+      <hr v-if="poll.options.length"/>
+      <div class="option create">
+        <img :src="profilePicture">
         <input type="text" placeholder="Create a new option..." style="border: none" v-model="newOption.name"/>
         <textarea v-if="newOption.name" v-model="newOption.description" placeholder="description" rows="2"></textarea>
         <input v-if="newOption.name" type="button" name="Add" @click="addOption()" value="Add"/>
@@ -23,6 +24,7 @@
 <script>
   import { API } from '../api.js'
   import PollOption from './Option.vue'
+  import { gravatar } from '../gravatar.js'
   export default {
     components: {
       PollOption
@@ -43,6 +45,15 @@
       },
       createdBy () {
         return 'created by ' + this.poll.created_by.name
+      },
+      profilePicture () {
+        gravatar.profilePicture(this.poll.created_by)
+      },
+      createdByMe () {
+        return this.$store.state.me && this.poll.created_by.id === this.$store.state.me.id
+      },
+      isLoggedIn () {
+        return this.$store.state.me
       }
     },
     methods: {

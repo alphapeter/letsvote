@@ -30,14 +30,8 @@
     },
     computed: {
       user () {
-        try {
-          var a = this.$cookie.get('lets_vote.authenticated')
-          var b = decodeURIComponent(a)
-          var user = JSON.parse(b)
-          return user
-        } catch (e) {
-          return false
-        }
+        console.log(this.$store.state)
+        return this.$store.state.me
       },
       isLoggedIn () {
         return this.user

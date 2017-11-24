@@ -14,12 +14,14 @@ func CookieAuth() gin.HandlerFunc {
 
 		if err != nil {
 			c.String(http.StatusUnauthorized, "Unauthorized")
+			return
 		}
 
 		session := users.Session{}
 		err = config.DB.First(&session, "id = ?", sessionId).Error
 		if err != nil {
 			c.String(http.StatusUnauthorized, "Unauthorized")
+			return
 		}
 
 		user := users.User{}
@@ -27,6 +29,7 @@ func CookieAuth() gin.HandlerFunc {
 		err = config.DB.First(&user, "id = ?", session.UserId).Error
 		if err != nil {
 			c.String(http.StatusUnauthorized, "Unauthorized")
+			return
 		}
 
 		c.Set("user", user)

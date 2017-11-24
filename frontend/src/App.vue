@@ -32,7 +32,15 @@
 
     },
     created () {
-      this.$store.dispatch('init')
+      var user = null
+      try {
+        var a = this.$cookie.get('lets_vote.authenticated')
+        var b = decodeURIComponent(a)
+        user = JSON.parse(b)
+      } catch (e) {
+        user = null
+      }
+      this.$store.dispatch('init', user)
 
       var url = 'ws://' + window.location.host + '/tap'
       var ws = new WebSocket(url)
