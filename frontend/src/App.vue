@@ -36,8 +36,11 @@
 
       var url = 'ws://' + window.location.host + '/tap'
       var ws = new WebSocket(url)
+      var store = this.$store
       ws.onmessage = function (message) {
-        console.log(message)
+        var event = JSON.parse(message.data)
+        store.dispatch(event.event, event.payload)
+        console.log(event)
       }
     },
     destroyed () {

@@ -26,6 +26,7 @@ func AddPoll(c *gin.Context) {
 	user := c.MustGet("user").(users.User)
 
 	p.CreatedByUserId = user.Id
+	p.CreatedBy = user
 	p.Id = uuid.NewV4().String()
 	err := config.DB.Create(&p).Error
 
@@ -37,6 +38,7 @@ func AddPoll(c *gin.Context) {
 		Success bool `json:"success"`
 		Poll    Poll `json:"poll"`
 	}{true, p})
+	PollCreated(p.Id)
 }
 
 func UpdatePoll(c *gin.Context) {
@@ -69,7 +71,32 @@ func UpdatePoll(c *gin.Context) {
 	c.JSON(http.StatusOK, struct {
 		Success bool `json:"success"`
 		Poll    Poll `json:"poll"`
-	}{true, p})
+	}{true, poll})
+	PollUpdated(poll.Id)
+}
+
+func DeletePoll(c *gin.Context) {
+	id := c.Param("pollId")
+	user := c.MustGet("user").(users.User)
+	var poll Poll
+	if err := config.DB.First(&poll, "id = ?", id).Error; err != nil {
+		errorResponse(c, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if poll.CreatedByUserId != user.Id {
+		errorResponse(c, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if err := config.DB.Delete(&poll, "Id = ?", poll.Id).Error; err != nil {
+		errorResponse(c, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, struct {
+		Success 		bool `json:"success"`
+	}{true })
+	PollDeleted(id)
 }
 
 func GetPolls(c *gin.Context) {
@@ -123,4 +150,29 @@ func AddOption(c *gin.Context) {
 		Success bool `json:"success"`
 		Option    Option `json:"option"`
 	}{true, o})
+	OptionCreated(o.Id)
 }
+func DeleteOption(c *gin.Context){
+	user := c.MustGet("user").(users.User);
+
+	optionId := c.Param("optionId")
+
+	option, err := FetchOption(optionId)
+	if err != nil {
+		errorResponse(c, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if option.CreatedByUserId != user.Id {
+		errorResponse(c, "Can only be delete by user whom created the option", http.StatusUnauthorized)
+		return
+	}
+	pollId := option.PollId
+	config.DB.Delete(&option, "id = ?", option.Id)
+	c.JSON(http.StatusOK, struct {
+		Success 		bool `json:"success"`
+	}{true })
+	OptionDeleted(pollId, optionId)
+}
+
+

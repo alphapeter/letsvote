@@ -12,12 +12,11 @@ func InitModels() {
 }
 
 type Vote struct {
-	Score    int    `json:"score"`
-	UserId   string `json="-" gorm:"primary_key" sql:"type:text REFERENCES users(id)"`
-	User     string `json:"user", gorm:"ForeignKey:Id;AssociationForeignKey:UserId"`
-	OptionId string `json="-" gorm:"primary_key"`
-	Option   Option `json:"option" gorm:"ForeignKey:Id;AssociationForeignKey:OptionId"`
-	PollId   string `sql:"type:text REFERENCES polls(id)"`
+	UserId         string `json:"user_id" gorm:"primary_key" sql:"type:text REFERENCES users(id)"`
+	PollId         string `json:"poll_id" gorm:"primary_key" sql:"type:text REFERENCES polls(id)"`
+	Score1OptionId string `json="score_1" sql:"type:text REFERENCES options(id)"`
+	Score2OptionId string `json="score_2" sql:"type:text REFERENCES options(id)"`
+	Score3OptionId string `json="score_3" sql:"type:text REFERENCES options(id)"`
 }
 
 type Option struct {
@@ -27,7 +26,7 @@ type Option struct {
 	CreatedBy       users.User `json:"created_by" gorm:"ForeignKey:Id;AssociationForeignKey:CreatedByUserId"`
 	Score           uint       `json:"score"`
 	CreatedByUserId string     `json:"-" sql:"type:text REFERENCES users(id)"`
-	PollId          string     `json:"pollId" sql:"type:text REFERENCES polls(id)"`
+	PollId          string     `json:"poll_id" sql:"type:text REFERENCES polls(id)"`
 	CreatedAt       time.Time  `json:"created_at"`
 	UpdatedAt       time.Time  `json:"updated_at"`
 }

@@ -27,5 +27,13 @@ export const API = {
     }).then((response) => {
       return response.json()
     })
+  },
+  delete (url) {
+    return fetch(url, {
+      credentials: 'include',
+      method: 'DELETE'
+    }).then((response) => {
+      return response.json()
+    })
   }
 }

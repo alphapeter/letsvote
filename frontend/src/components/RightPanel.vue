@@ -1,6 +1,7 @@
 <template>
   <div class="rightpanel">
     Active users
+    <div v-for="user in activeUsers">{{user.name}}</div>
   </div>
 </template>
 
@@ -11,6 +12,14 @@
       }
     },
     computed: {
+      activeUsers () {
+        return this.$store.state.activeUsers.map(user => {
+          return {
+            name: user.id === 'anonymous' ? user.id : user.name,
+            gravatar: user.gravatar
+          }
+        })
+      }
     }
   }
 </script>

@@ -6,7 +6,7 @@
     <poll v-for="poll in polls" :key="poll.id" :poll="poll"></poll>
     <div class="poll create">
       <input type="text" v-model="newPoll.name" placeholder="Create a new poll...">
-      <textarea v-if="newPoll.name" v-model="newPoll.description" placeholder="description" rows="8"></textarea>
+      <textarea v-if="newPoll.name" v-model="newPoll.description" placeholder="description" rows="2"></textarea>
       <input v-if="newPoll.name" @click="addPoll" type="button" value="create"/>
     </div>
   </div>
@@ -38,18 +38,20 @@
         var store = this.$store
         var that = this
         API.post('api/polls', {
-          name: this.newPoll.name,
+          name: that.newPoll.name,
           description: this.newPoll.description
         }).then((response) => {
-          if (response.success) {
-            store.commit('addPoll', response.poll)
+          if (!response.success) {
+            store.commit('error', {
+              message: 'Fail! :(',
+              code: 500
+            })
+          } else {
             that.newPoll.name = ''
             that.newPoll.description = ''
-          } else {
-            store.commit('error', { message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(', code: 500 })
           }
         }).catch((reason) => {
-          store.commit('error', { message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(', code: reason.code })
+          store.commit('error', { message: 'Fail', code: reason.code })
         })
       }
     }
@@ -78,18 +80,15 @@
   }
 
   .poll.create input[type=button] {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
     margin: 5px;
+    float: right;
   }
   .name {
     font-weight: bolder;
   }
   .created {
-    position: absolute;
-    right: 10px;
-    top: 2px
+    float: right;
+    margin: 2px;
   }
   .description {
     font-style: italic;

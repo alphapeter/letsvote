@@ -6,7 +6,8 @@ import ui from './modules/uiState'
 Vue.use(Vuex)
 
 const state = {
-  polls: []
+  polls: [],
+  activeUsers: []
 }
 
 const getters = {}
@@ -18,14 +19,33 @@ export const store = new Vuex.Store({
       this.state.polls = polls
     },
     selectPoll (state, message) {
-      state.selectedPoll = state.polls[message.pollId]
+      state.selectedPoll = state.polls[message.poll_id]
     },
-    addPoll (state, poll) {
+    'POLL_CREATED' (state, poll) {
       state.polls.push(poll)
     },
-    addOption (state, option) {
-      var poll = state.polls.find(poll => poll.id === option.pollId)
+    'POLL_DELETED' (state, id) {
+      state.polls = state.polls.filter(poll => poll.id !== id)
+    },
+    'OPTION_CREATED' (state, option) {
+      var poll = state.polls.find(poll => poll.id === option.poll_id)
       poll.options.push(option)
+    },
+    'OPTION_DELETED' (state, payload) {
+      var poll = state.polls.find(poll => poll.id === payload.poll_id)
+      var index = poll.options.findIndex(o => o.id === payload.option_id)
+      poll.options.splice(index, 1)
+    },
+    'USER_CONNECT' (state, user) {
+      if (!state.activeUsers.some(u => u.id === user.id)) {
+        state.activeUsers.push(user)
+      }
+    },
+    'USER_DISCONNECT' (state, user) {
+      state.activeUsers = state.activeUsers.filter(u => u.id !== user.id)
+    },
+    'CONNECTED_USERS' (state, users) {
+      state.activeUsers = users
     }
   },
   actions: {
@@ -36,8 +56,26 @@ export const store = new Vuex.Store({
           commit('loadingComplete')
         })
     },
-    login ({commit}) {
-      commit('login')
+    'POLL_CREATED' ({commit}, poll) {
+      commit('POLL_CREATED', poll)
+    },
+    'POLL_DELETED' ({commit}, id) {
+      commit('POLL_DELETED', id)
+    },
+    'OPTION_CREATED' ({commit}, option) {
+      commit('OPTION_CREATED', option)
+    },
+    'OPTION_DELETED' ({commit}, payload) {
+      commit('OPTION_DELETED', payload)
+    },
+    'USER_CONNECT' ({commit}, user) {
+      commit('USER_CONNECT', user)
+    },
+    'USER_DISCONNECT' ({commit}, user) {
+      commit('USER_DISCONNECT', user)
+    },
+    'CONNECTED_USERS' ({commit}, users) {
+      commit('CONNECTED_USERS', users)
     }
   },
   modules: {

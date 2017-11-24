@@ -21,8 +21,8 @@ var connectionStatus struct {
 }
 
 type Message struct {
-	Event   string
-	Payload interface{}
+	Event   string      `json:"event"`
+	Payload interface{} `json:"payload"`
 }
 
 func Init(router *gin.Engine) {
@@ -38,14 +38,23 @@ func Init(router *gin.Engine) {
 	socket.HandleConnect(func(s *melody.Session) {
 		user := getUser(s)
 		UserConnected(user, s)
+		users := GetConnectedUserList()
+		message := Message{
+			Event: "CONNECTED_USERS",
+			Payload: users,
+		}
+		if json, err := json.Marshal(message); err == nil {
+			s.Write(json)
+		}
 
 	})
 
 	socket.HandleDisconnect(func(s *melody.Session) {
 		UserDisconnected(s)
-
-
 	})
+
+
+
 
 }
 func UserDisconnected(session *melody.Session) {
@@ -56,7 +65,7 @@ func UserDisconnected(session *melody.Session) {
 	delete(connectionStatus.ConnectedUsers[user], session)
 	if len(connectionStatus.ConnectedUsers[user]) == 0 {
 		delete(connectionStatus.ConnectedUsers, user)
-		go broadcast("USER_DISCONNECT", user)
+		go Broadcast("USER_DISCONNECT", user)
 	}
 	connectionStatus.Lock.Unlock()
 }
@@ -67,7 +76,7 @@ func UserConnected(user users.User, s *melody.Session) {
 	connectionStatus.Sessions[s] = user
 	if connectionStatus.ConnectedUsers[user] == nil {
 		connectionStatus.ConnectedUsers[user] = make(map[*melody.Session]bool)
-		go broadcast("USER_CONNECT", user)
+		go Broadcast("USER_CONNECT", user)
 	}
 	connectionStatus.ConnectedUsers[user][s] = true
 
@@ -91,7 +100,7 @@ func getUser(s *melody.Session) users.User {
 	return user
 }
 
-func broadcast(event string, payload interface{}) {
+func Broadcast(event string, payload interface{}) {
 	m := Message{
 		Event:   event,
 		Payload: payload,
@@ -103,9 +112,13 @@ func broadcast(event string, payload interface{}) {
 }
 
 func GetConnectedUsers(c *gin.Context) {
+	users := GetConnectedUserList()
+	c.JSON(http.StatusOK, users)
+}
+func GetConnectedUserList() []users.User {
 	var users []users.User
 	for k, _ := range connectionStatus.ConnectedUsers {
 		users = append(users, k)
 	}
-	c.JSON(http.StatusOK, users)
+	return users
 }

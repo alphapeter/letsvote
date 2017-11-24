@@ -33,10 +33,13 @@ func main() {
 
 	authorized.PUT("/api/polls/:id", polls.UpdatePoll)
 	router.GET("/api/polls/:id", polls.GetPoll)
+	authorized.DELETE("/api/polls/:pollId", polls.DeletePoll)
+
 
 	router.GET("/api/polls/:id/options", polls.GetOptions)
 	router.GET("/api/polls/:id/options/:id", polls.GetOption)
 	authorized.POST("/api/polls/:id/options", polls.AddOption)
+	authorized.DELETE("/api/polls/:pollId/options/:optionId", polls.DeleteOption)
 
 	router.GET("/auth/login/:provider", auth.LoginHandler)
 	router.GET("/auth/callback/:provider", auth.CallbackHandler)
