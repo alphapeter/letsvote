@@ -1,5 +1,6 @@
 <template>
     <div class="option">
+      <img :src="profilePicture"/>
       <span>{{option.name}}</span>
       <input class="deleteOptionButton" type="button" name="delete" value="delete option" @click="deleteOption"/>
     </div>
@@ -7,7 +8,7 @@
 
 <script>
   import { API } from '../api.js'
-
+  import { gravatar } from '../gravatar.js'
   export default {
     props: ['option'],
     computed: {
@@ -17,6 +18,9 @@
       },
       createdBy () {
         return 'created by ' + this.option.created_by.name
+      },
+      profilePicture () {
+        return gravatar.profilePicture(this.option.created_by)
       }
     },
     methods: {

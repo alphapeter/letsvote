@@ -105,6 +105,7 @@ func GetPolls(c *gin.Context) {
 		Preload("CreatedBy").
 		Preload("Winner").
 		Preload("Votes").
+		Preload("Options.CreatedBy").
 		Find(&polls)
 	c.JSON(http.StatusOK, polls)
 }

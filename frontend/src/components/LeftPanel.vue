@@ -2,15 +2,8 @@
   <div class="leftpanel">
     <div class="userInfo">
       <div>
-        <img class="profilePicture"
-             v-if="isLoggedIn"
-             :src="profilePicture"
-             :title="user.name"
-             align="middle"/>
-        <span class="username"
-              v-if="isLoggedIn">{{user.name}}</span>
+        <user v-if="isLoggedIn" :user="user" :size="24"></user>
       </div>
-
       <a href="/auth/logout"
          v-if="isLoggedIn">
       logout
@@ -25,7 +18,11 @@
 </template>
 
 <script>
+  import User from './User.vue'
   export default {
+    components: {
+      User
+    },
     methods: {
       login () {
         window.location.href = '/auth/login/office365'
@@ -41,9 +38,6 @@
         } catch (e) {
           return false
         }
-      },
-      profilePicture () {
-        return 'https://www.gravatar.com/avatar/' + this.user.gravatar + '?s=24'
       },
       isLoggedIn () {
         return this.user

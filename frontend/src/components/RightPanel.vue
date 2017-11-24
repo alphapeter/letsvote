@@ -1,12 +1,16 @@
 <template>
   <div class="rightpanel">
     Active users
-    <div v-for="user in activeUsers">{{user.name}}</div>
+    <user v-for="user in activeUsers" :user="user" :key="user.id"></user>
   </div>
 </template>
 
 <script>
+  import User from './User.vue'
   export default {
+    components: {
+      User
+    },
     methods: {
       login () {
       }

@@ -54,6 +54,7 @@ func FetchOption(id string) (Option, error) {
 	var option Option
 	err := config.DB.
 		Preload("CreatedBy").
+		Preload("Options.CreatedBy").
 		First(&option, "id = ?", id).Error
 	return option, err
 }
