@@ -48,20 +48,12 @@ func UpdatePoll(c *gin.Context) {
 		return
 	}
 
-	id := c.Param("id")
-	user := c.MustGet("user").(users.User)
-
-	p.Id = id
-
-	var poll Poll
-	if err := config.DB.First(&poll, "id = ?", id).Error; err != nil {
-		errorResponse(c, err.Error(), http.StatusInternalServerError)
-		return
+	poll, err:= fetchPollForEdit(c, "id")
+	if err != nil {
+		errorResponse(c, err.message(), err.responseCode())
 	}
-	if poll.CreatedByUserId != user.Id {
-		errorResponse(c, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+
+	p.Id = poll.Id
 
 	if err := config.DB.Model(&poll).Update(p).Error; err != nil {
 		errorResponse(c, err.Error(), http.StatusInternalServerError)
@@ -76,17 +68,12 @@ func UpdatePoll(c *gin.Context) {
 }
 
 func DeletePoll(c *gin.Context) {
-	id := c.Param("pollId")
-	user := c.MustGet("user").(users.User)
-	var poll Poll
-	if err := config.DB.First(&poll, "id = ?", id).Error; err != nil {
-		errorResponse(c, err.Error(), http.StatusInternalServerError)
+	poll, err := fetchPollForEdit(c, "pollId")
+	if err != nil {
+		errorResponse(c, err.message(), err.responseCode())
 		return
 	}
-	if poll.CreatedByUserId != user.Id {
-		errorResponse(c, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	id := poll.Id
 
 	if err := config.DB.Delete(&poll, "Id = ?", poll.Id).Error; err != nil {
 		errorResponse(c, err.Error(), http.StatusInternalServerError)
@@ -154,20 +141,15 @@ func AddOption(c *gin.Context) {
 	OptionCreated(o.Id)
 }
 func DeleteOption(c *gin.Context){
-	user := c.MustGet("user").(users.User);
 
-	optionId := c.Param("optionId")
-
-	option, err := FetchOption(optionId)
+	option, err := fetchOptionForEdit(c, "optionId")
 	if err != nil {
-		errorResponse(c, err.Error(), http.StatusBadRequest)
+		errorResponse(c, err.message(), err.responseCode())
 		return
 	}
 
-	if option.CreatedByUserId != user.Id {
-		errorResponse(c, "Can only be delete by user whom created the option", http.StatusUnauthorized)
-		return
-	}
+	optionId := option.Id
+
 	pollId := option.PollId
 	config.DB.Delete(&option, "id = ?", option.Id)
 	c.JSON(http.StatusOK, struct {
@@ -175,5 +157,80 @@ func DeleteOption(c *gin.Context){
 	}{true })
 	OptionDeleted(pollId, optionId)
 }
+
+func ActivatePoll (c *gin.Context){
+
+}
+
+func EndPoll (c *gin.Context){
+
+}
+
+func fetchPollForEdit(c *gin.Context, idParameterName string) (Poll, fetchError){
+	id := c.Param(idParameterName)
+	user := c.MustGet("user").(users.User)
+
+	var poll Poll
+	if err := config.DB.First(&poll, "id = ?", id).Error; err != nil {
+		return poll, unsuccessfulFetch{msg: err.Error(), code: http.StatusInternalServerError}
+	}
+	if (!hasPermissionToEdit(poll, user)){
+		return poll, unautorizedFetch{}
+	}
+	return poll, nil
+}
+
+func fetchOptionForEdit(c *gin.Context, idParameterName string) (Option, fetchError) {
+	id := c.Param(idParameterName)
+	user := c.MustGet("user").(users.User)
+
+	var option Option
+	if err := config.DB.First(&option, "id = ?", id).Error; err != nil {
+		return option, unsuccessfulFetch{msg: err.Error(), code: http.StatusInternalServerError}
+	}
+	if (!hasPermissionToEdit(option, user)){
+		return option, unautorizedFetch{}
+	}
+	return option, nil
+}
+
+func hasPermissionToEdit(created userCreated, user users.User) bool {
+	return created.getUserId() == user.Id
+}
+
+
+
+
+
+
+type fetchError interface {
+	message() string
+	responseCode() int
+}
+
+type unautorizedFetch struct {
+
+}
+
+func (unautorizedFetch) message() string{
+	return "unauthorized"
+}
+func (unautorizedFetch) responseCode() int{
+	return http.StatusUnauthorized
+}
+
+type unsuccessfulFetch struct {
+	msg string
+	code int
+}
+
+func (f unsuccessfulFetch) message() string{
+	return f.msg
+}
+func (f unsuccessfulFetch) responseCode() int{
+	return f.code
+}
+
+
 
 

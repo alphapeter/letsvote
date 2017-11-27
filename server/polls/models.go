@@ -11,6 +11,14 @@ func InitModels() {
 	config.DB.AutoMigrate(&Poll{}, &Option{}, &Vote{})
 }
 
+type Status int
+
+const (
+	CREATED  = Status(0)
+	ACTIVE   = Status(5)
+	FINISHED = Status(10)
+)
+
 type Vote struct {
 	UserId         string `json:"user_id" gorm:"primary_key" sql:"type:text REFERENCES users(id)"`
 	PollId         string `json:"poll_id" gorm:"primary_key" sql:"type:text REFERENCES polls(id)"`
@@ -44,4 +52,17 @@ type Poll struct {
 	Votes           []Vote         `json:"votes" gorm:"ForeignKey:PollId;AssociationForeignKey:Id"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
+	Status          Status         `json:"status"`
+}
+
+type userCreated interface {
+	getUserId() string
+}
+
+func (p Poll) getUserId() string {
+	return p.CreatedByUserId
+}
+
+func (o Option) getUserId() string {
+	return o.CreatedByUserId
 }

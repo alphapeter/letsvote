@@ -1,15 +1,25 @@
 <template>
-    <div class="option">
-      <img :src="profilePicture"/>
-      <span>{{option.name}}</span>
-      <input v-if="createdByMe" class="deleteOptionButton" type="button" name="delete" value="delete option" @click="deleteOption"/>
-    </div>
+  <div class="option">
+    <img :src="profilePicture"/>
+    <span v-on:mouseenter="active = true"
+          v-on:mouseleave="active = false">
+      {{option.name}}
+        <span v-if="active">edit</span>
+    </span>
+
+    <input v-if="createdByMe" class="deleteOptionButton" type="button" name="delete" value="delete option" @click="deleteOption"/>
+  </div>
 </template>
 
 <script>
   import { API } from '../api.js'
   import { gravatar } from '../gravatar.js'
   export default {
+    data () {
+      return {
+        active: false
+      }
+    },
     props: ['option'],
     computed: {
       printDate () {
@@ -43,6 +53,9 @@
               code: reason.code
             })
           })
+      },
+      m () {
+        this.active = true
       }
     }
   }
