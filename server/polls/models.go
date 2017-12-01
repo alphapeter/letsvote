@@ -22,9 +22,9 @@ const (
 type Vote struct {
 	UserId         string `json:"user_id" gorm:"primary_key" sql:"type:text REFERENCES users(id)"`
 	PollId         string `json:"poll_id" gorm:"primary_key" sql:"type:text REFERENCES polls(id)"`
-	Score1OptionId string `json="score_1" sql:"type:text REFERENCES options(id)"`
-	Score2OptionId string `json="score_2" sql:"type:text REFERENCES options(id)"`
-	Score3OptionId string `json="score_3" sql:"type:text REFERENCES options(id)"`
+	Score1OptionId sql.NullString `json="score_1" sql:"type:text REFERENCES options(id)"`
+	Score2OptionId sql.NullString `json="score_2" sql:"type:text REFERENCES options(id)"`
+	Score3OptionId sql.NullString `json="score_3" sql:"type:text REFERENCES options(id)"`
 }
 
 type Option struct {

@@ -13,8 +13,13 @@ import (
 
 var socket *melody.Melody
 
+type connectionInfo struct {
+	user users.User
+	sessions map[*melody.Session]bool
+}
+
 var connectionStatus struct {
-	ConnectedUsers map[users.User]map[*melody.Session]bool
+	ConnectedUsers map[string]*connectionInfo
 	Lock           *sync.Mutex
 	Sessions       map[*melody.Session]users.User
 	anonymousUsers int
@@ -28,7 +33,7 @@ type Message struct {
 func Init(router *gin.Engine) {
 	socket = melody.New()
 	connectionStatus.Sessions = make(map[*melody.Session]users.User)
-	connectionStatus.ConnectedUsers = make(map[users.User]map[*melody.Session]bool)
+	connectionStatus.ConnectedUsers = make(map[string]*connectionInfo)
 	connectionStatus.Lock = new(sync.Mutex)
 
 	router.GET("/tap", func(c *gin.Context) {
@@ -52,19 +57,15 @@ func Init(router *gin.Engine) {
 	socket.HandleDisconnect(func(s *melody.Session) {
 		UserDisconnected(s)
 	})
-
-
-
-
 }
 func UserDisconnected(session *melody.Session) {
 	connectionStatus.Lock.Lock()
 
 	user := connectionStatus.Sessions[session]
 	delete(connectionStatus.Sessions, session)
-	delete(connectionStatus.ConnectedUsers[user], session)
-	if len(connectionStatus.ConnectedUsers[user]) == 0 {
-		delete(connectionStatus.ConnectedUsers, user)
+	delete(connectionStatus.ConnectedUsers[user.Id].sessions, session)
+	if len(connectionStatus.ConnectedUsers[user.Id].sessions) == 0 {
+		delete(connectionStatus.ConnectedUsers, user.Id)
 		go Broadcast("USER_DISCONNECT", user)
 	}
 	connectionStatus.Lock.Unlock()
@@ -74,11 +75,15 @@ func UserConnected(user users.User, s *melody.Session) {
 	connectionStatus.Lock.Lock()
 
 	connectionStatus.Sessions[s] = user
-	if connectionStatus.ConnectedUsers[user] == nil {
-		connectionStatus.ConnectedUsers[user] = make(map[*melody.Session]bool)
+	if connectionStatus.ConnectedUsers[user.Id] == nil {
+		connectionStatus.ConnectedUsers[user.Id] = &connectionInfo{
+			user: user,
+			sessions: make(map[*melody.Session]bool),
+		}
+
 		go Broadcast("USER_CONNECT", user)
 	}
-	connectionStatus.ConnectedUsers[user][s] = true
+	connectionStatus.ConnectedUsers[user.Id].sessions[s] = true
 
 	connectionStatus.Lock.Unlock()
 }
@@ -115,10 +120,11 @@ func GetConnectedUsers(c *gin.Context) {
 	users := GetConnectedUserList()
 	c.JSON(http.StatusOK, users)
 }
+
 func GetConnectedUserList() []users.User {
 	var users []users.User
-	for k, _ := range connectionStatus.ConnectedUsers {
-		users = append(users, k)
+	for _, v := range connectionStatus.ConnectedUsers {
+		users = append(users, v.user)
 	}
 	return users
 }

@@ -1,22 +1,21 @@
 <template>
   <div class="poll">
+    {{poll.status}}
     <div class="header">
-      <span class="name">{{poll.name}}</span>
+      <div class="name">{{poll.name}}</div>
       <span class="created" :title="createdBy">{{printDate}}</span>
-      <input v-if="createdByMe" class="deletePollButton" type="button" name="Delete poll" @click="deletePoll" value="Delete poll"/>
+      <input v-if="canDelete" class="deletePollButton" type="button" @click="deletePoll" value="Delete poll"/>
+      <input v-if="canActivate" class="activatePollButton" type="button" @click="activatePoll" value="Activate poll"/>
     </div>
     <div class="description">{{poll.description}}</div>
     <hr/>
     <div v-if="!poll.options.length">no options yet...</div>
-    <poll-option v-for="option in poll.options" :option="option" :key="option.id"></poll-option>
-    <div v-if="!poll.has_ended && isLoggedIn">
+
+    <poll-option v-for="option in poll.options" :option="option" :poll="poll" :key="option.id"></poll-option>
+
+    <div v-if="statusCreated && isLoggedIn">
       <hr v-if="poll.options.length"/>
-      <div class="option create">
-        <img :src="profilePicture">
-        <input type="text" placeholder="Create a new option..." style="border: none" v-model="newOption.name"/>
-        <textarea v-if="newOption.name" v-model="newOption.description" placeholder="description" rows="2"></textarea>
-        <input v-if="newOption.name" type="button" name="Add" @click="addOption()" value="Add"/>
-      </div>
+      <poll-option-add :poll="poll"></poll-option-add>
     </div>
   </div>
 </template>
@@ -24,19 +23,13 @@
 <script>
   import { API } from '../api.js'
   import PollOption from './Option.vue'
+  import PollOptionAdd from './OptionAdd.vue'
   import { gravatar } from '../gravatar.js'
   export default {
-    components: {
-      PollOption
-    },
     props: ['poll'],
-    data () {
-      return {
-        newOption: {
-          name: '',
-          description: ''
-        }
-      }
+    components: {
+      PollOption,
+      PollOptionAdd
     },
     computed: {
       printDate () {
@@ -49,40 +42,46 @@
       profilePicture () {
         gravatar.profilePicture(this.poll.created_by)
       },
-      createdByMe () {
-        return this.$store.state.me && this.poll.created_by.id === this.$store.state.me.id
+      canDelete () {
+        return this.hasPermissionToEdit
+      },
+      hasPermissionToEdit () {
+        return this.$store.state.me && this.poll.created_by.id === this.$store.state.me.id && !this.statusActive
+      },
+      canActivate () {
+        return this.poll.options.length && this.statusCreated && this.hasPermissionToEdit
       },
       isLoggedIn () {
         return this.$store.state.me
+      },
+      statusCreated () {
+        return this.poll.status === 0
+      },
+      statusActive () {
+        return this.poll.status === 5
       }
     },
     methods: {
-      addOption () {
-        var store = this.$store
-        var that = this
-        API.post('api/polls/' + this.poll.id + '/options', {
-          name: this.newOption.name,
-          description: this.newOption.description
-        }).then((response) => {
-          if (response.success) {
-            that.newOption.name = ''
-            that.newOption.description = ''
-          } else {
-            store.commit('error', {
-              message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
-              code: 500
-            })
-          }
-        }).catch((reason) => {
-          store.commit('error', {
-            message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
-            code: reason.code
-          })
-        })
-      },
       deletePoll () {
         var store = this.$store
         API.delete('api/polls/' + this.poll.id)
+          .then((response) => {
+            if (!response.success) {
+              store.commit('error', {
+                message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
+                code: 500
+              })
+            }
+          }).catch((reason) => {
+            store.commit('error', {
+              message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
+              code: reason.code
+            })
+          })
+      },
+      activatePoll () {
+        var store = this.$store
+        API.patch('api/polls/' + this.poll.id, { status: '5' })
           .then((response) => {
             if (!response.success) {
               store.commit('error', {
@@ -102,11 +101,32 @@
 </script>
 
 <style scoped>
-  .option.create input[type=text], textarea {
-    width: calc(100% - 60px)
+  .name {
+    font-size: x-large;
+    font-weight: bolder;
+    padding: 20px;
+  }
+  .created {
+    position: absolute;
+    right: 10px;
+    top: 20px;
+    margin: 2px;
+  }
+  .description {
+    font-style: italic;
+    margin: 10px;
+  }
+  .poll {
+    width: calc(100% - 400px);
+    background-color: #FFF;
+    margin-bottom: 20px;
+    position: relative;
+    border: 1px solid #e9e8e8;
+    border-radius: 5px;
   }
   .deletePollButton {
-    float: right;
+    position: absolute;
+    top: 50px;
     right: 5px;
   }
 </style>

@@ -45,6 +45,26 @@ func LogoutHandler(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/")
 }
 
+func FakeLoginHandler(c *gin.Context) {
+	userId := c.Params.ByName("fakeuser")
+	fakeUser := users.User{
+		Name: userId,
+		Email: "fake@fake.com",
+		Id: userId,
+	}
+	user, err := users.GetOrCreateUser(fakeUser)
+	sessionId := newSessionId()
+	c.SetCookie(SessionCookieName, sessionId, cookieMaxAge, "/", "", false, true)
+	userResponse := userToJson(user)
+	c.SetCookie(UserCookieName, userResponse, cookieMaxAge, "/", "", false, false)
+	err = users.SetSession(user, sessionId)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.Redirect(http.StatusFound, "/")
+}
 
 func CallbackHandler(ctx *gin.Context) {
 	provider := ctx.Params.ByName("provider")

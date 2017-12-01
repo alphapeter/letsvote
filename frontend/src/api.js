@@ -28,6 +28,15 @@ export const API = {
       return response.json()
     })
   },
+  patch (url, payload) {
+    return fetch(url, {
+      credentials: 'include',
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    }).then((response) => {
+      return response.json()
+    })
+  },
   delete (url) {
     return fetch(url, {
       credentials: 'include',

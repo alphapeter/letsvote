@@ -30,7 +30,6 @@
     },
     computed: {
       user () {
-        console.log(this.$store.state)
         return this.$store.state.me
       },
       isLoggedIn () {

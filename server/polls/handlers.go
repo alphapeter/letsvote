@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
 	"net/http"
+	"strconv"
+	"github.com/jinzhu/gorm"
 )
 
 func errorResponse(c *gin.Context, reason string, responseCode int) {
@@ -41,19 +43,74 @@ func AddPoll(c *gin.Context) {
 	PollCreated(p.Id)
 }
 
+func HandleVote(c *gin.Context) {
+	user := c.MustGet("user").(users.User)
+	v := Vote{}
+	pollId := c.Params.ByName("pollId")
+
+	//todo assert pollId and poll in correct status
+
+	err := config.DB.First(&v, "userId = ?, pollId = ?", user.Id, pollId).Error
+	if err!= nil && err != gorm.ErrRecordNotFound {
+		errorResponse(c, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	update := Vote{}
+	c.ShouldBindJSON(&update)
+
+	v.PollId = pollId
+	v.UserId = user.Id
+
+	//todo assert options are for the correct poll
+	v.Score1OptionId = update.Score1OptionId
+	v.Score2OptionId = update.Score2OptionId
+	v.Score3OptionId = update.Score3OptionId
+	config.DB.Save(&v)
+
+	c.JSON(http.StatusOK, struct {
+		Success bool
+	}{Success:true})
+}
+
 func UpdatePoll(c *gin.Context) {
-	var p Poll
+	var p map[string]string
 	if err := c.BindJSON(&p); err != nil {
 		errorResponse(c, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	poll, err:= fetchPollForEdit(c, "id")
+	poll, err:= fetchPollForEdit(c, "pollId")
 	if err != nil {
 		errorResponse(c, err.message(), err.responseCode())
+		return
 	}
 
-	p.Id = poll.Id
+	hasBeenUpdated := false
+	if name, ok := p["name"]; ok {
+		poll.Name = name
+		hasBeenUpdated = true
+	}
+
+	if description, ok := p["description"]; ok {
+		poll.Description = description
+		hasBeenUpdated = true
+	}
+	if input, ok := p["status"]; ok {
+		i, err := strconv.Atoi(input)
+		if err != nil {
+			errorResponse(c, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		var status = Status(i)
+		poll.Status = status
+		hasBeenUpdated = true
+	}
+
+	if !hasBeenUpdated{
+		errorResponse(c, "No valid fields for patch", http.StatusBadRequest)
+	}
 
 	if err := config.DB.Model(&poll).Update(p).Error; err != nil {
 		errorResponse(c, err.Error(), http.StatusInternalServerError)
@@ -65,6 +122,44 @@ func UpdatePoll(c *gin.Context) {
 		Poll    Poll `json:"poll"`
 	}{true, poll})
 	PollUpdated(poll.Id)
+}
+
+func UpdateOption(c *gin.Context) {
+	var p map[string]string
+	if err := c.BindJSON(&p); err != nil {
+		errorResponse(c, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	option, err:= fetchOptionForEdit(c, "optionId")
+	if err != nil {
+		errorResponse(c, err.message(), err.responseCode())
+	}
+
+	hasBeenUpdated := false
+	if name, ok := p["name"]; ok {
+		option.Name = name
+		hasBeenUpdated = true
+	}
+
+	if description, ok := p["description"]; ok {
+		option.Description = description
+		hasBeenUpdated = true
+	}
+	if !hasBeenUpdated{
+		errorResponse(c, "No valid fields for patch", http.StatusBadRequest)
+	}
+
+	if err := config.DB.Model(&option).Update(p).Error; err != nil {
+		errorResponse(c, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, struct {
+		Success bool `json:"success"`
+		Option    Option `json:"poll"`
+	}{true, option})
+	PollUpdated(option.Id)
 }
 
 func DeletePoll(c *gin.Context) {
@@ -96,6 +191,7 @@ func GetPolls(c *gin.Context) {
 		Find(&polls)
 	c.JSON(http.StatusOK, polls)
 }
+
 func GetPoll(c *gin.Context) {
 	c.String(http.StatusOK, "")
 }
@@ -116,7 +212,7 @@ func AddOption(c *gin.Context) {
 	}
 
 	user := c.MustGet("user").(users.User)
-	pollId := c.Param("id")
+	pollId := c.Param("pollId")
 
 	var poll Poll
 	if err := config.DB.First(&poll, "id = ?", pollId).Error; err != nil {

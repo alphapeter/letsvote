@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/alphapeter/letsvote/server/auth"
 	"github.com/alphapeter/letsvote/server/config"
-	"github.com/alphapeter/letsvote/server/webui"
 	"github.com/alphapeter/letsvote/server/polls"
+	"github.com/alphapeter/letsvote/server/tap"
 	"github.com/alphapeter/letsvote/server/users"
+	"github.com/alphapeter/letsvote/server/webui"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"github.com/alphapeter/letsvote/server/auth"
-	"github.com/alphapeter/letsvote/server/tap"
 )
 
 func main() {
@@ -28,19 +28,24 @@ func main() {
 
 	router.GET("/api/activeusers", tap.GetConnectedUsers)
 
-	authorized.POST("/api/polls", polls.AddPoll)
 	router.GET("/api/polls", polls.GetPolls)
+	authorized.POST("/api/polls", polls.AddPoll)
 
-	authorized.PUT("/api/polls/:id", polls.UpdatePoll)
-	router.GET("/api/polls/:id", polls.GetPoll)
+	router.GET("/api/polls/:pollId", polls.GetPoll)
 	authorized.DELETE("/api/polls/:pollId", polls.DeletePoll)
+	authorized.PATCH("/api/polls/:pollId", polls.UpdatePoll)
+	authorized.PUT("/api/polls/:pollId", polls.UpdatePoll)
 
+	router.GET("/api/polls/:pollId/options", polls.GetOptions)
+	authorized.POST("/api/polls/:pollId/options", polls.AddOption)
 
-	router.GET("/api/polls/:id/options", polls.GetOptions)
-	router.GET("/api/polls/:id/options/:id", polls.GetOption)
-	authorized.POST("/api/polls/:id/options", polls.AddOption)
+	router.GET("/api/polls/:pollId/options/:id", polls.GetOption)
 	authorized.DELETE("/api/polls/:pollId/options/:optionId", polls.DeleteOption)
+	authorized.PATCH("/api/polls/:pollId/options/:optionId", polls.UpdateOption)
 
+	authorized.POST("/api/polls/:pollId/vote", polls.HandleVote)
+
+	router.GET("/auth/fakelogin/:fakeuser", auth.FakeLoginHandler)
 	router.GET("/auth/login/:provider", auth.LoginHandler)
 	router.GET("/auth/callback/:provider", auth.CallbackHandler)
 	router.GET("/auth/logout", auth.LogoutHandler)
