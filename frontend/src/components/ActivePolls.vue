@@ -15,7 +15,13 @@
     },
     computed: {
       polls () {
-        return this.$store.state.polls
+        let polls = this.$store.state.polls
+        return polls.sort((a, b) => {
+          if (a.created_at > b.created_at) {
+            return -1
+          }
+          return 1
+        })
       },
       isLoggedIn () {
         return this.$store.state.me

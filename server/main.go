@@ -42,6 +42,8 @@ func main() {
 
 	authorized.POST("/api/polls/:pollId/vote", polls.HandleVote)
 
+	authorized.GET("api/votes", polls.GetVotes)
+
 	router.GET("/auth/fakelogin/:fakeuser", auth.FakeLoginHandler)
 	router.GET("/auth/login/:provider", auth.LoginHandler)
 	router.GET("/auth/callback/:provider", auth.CallbackHandler)

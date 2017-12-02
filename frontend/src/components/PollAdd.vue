@@ -29,7 +29,6 @@
     },
     methods: {
       addPoll () {
-        // todo should be an action in the store to be dispatched
         var store = this.$store
         var that = this
         API.post('api/polls', {
@@ -38,8 +37,7 @@
         }).then((response) => {
           if (!response.success) {
             store.commit('error', {
-              message: 'Fail! :(',
-              code: 500
+              message: response.reason
             })
           } else {
             that.newPoll.name = ''
@@ -57,7 +55,7 @@
   .poll {
     width: calc(100% - 400px);
     background-color: #FFF;
-    margin-top: 50px;
+    margin-top: 20px;
     margin-bottom: 50px;
     border: 1px solid #e9e8e8;
     border-radius: 5px;

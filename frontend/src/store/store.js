@@ -2,13 +2,14 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { API } from '../api.js'
 import ui from './modules/uiState'
+import { EventBus } from '../EventBus.js'
 
 Vue.use(Vuex)
 
 const state = {
   polls: [],
   activeUsers: [],
-  me: null,
+  me: {},
   votes: {}
 }
 
@@ -43,6 +44,9 @@ export const store = new Vuex.Store({
         }
       }
     },
+    'INIT_VOTES' (state, votes) {
+      Vue.set(state, 'votes', votes)
+    },
     'OPTION_CREATED' (state, option) {
       var poll = state.polls.find(poll => poll.id === option.poll_id)
       poll.options.push(option)
@@ -74,13 +78,23 @@ export const store = new Vuex.Store({
     }
   },
   actions: {
-    init ({commit}, user) {
+    init ({commit, state}, user) {
       commit('initUser', user)
-      API.getPolls()
+      API.get('/api/polls')
         .then((polls) => {
           commit('init', polls)
           commit('loadingComplete')
         })
+      if (state.me) {
+        API.get('/api/votes')
+          .then((votes) => {
+            var map = {}
+            for (var vote of votes) {
+              map[vote.poll_id] = vote
+            }
+            commit('INIT_VOTES', map)
+          })
+      }
     },
     vote ({commit, state}, vote) {
       let votes = state.votes[vote.poll_id]
@@ -135,6 +149,9 @@ export const store = new Vuex.Store({
     },
     'CONNECTED_USERS' ({commit}, users) {
       commit('CONNECTED_USERS', users)
+    },
+    'USER_VOTED' (_, info) {
+      EventBus.$emit('USER_VOTED', info)
     }
   },
   modules: {

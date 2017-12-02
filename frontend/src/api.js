@@ -1,9 +1,6 @@
 export const API = {
-  getPolls () {
-    return this.get('polls')
-  },
   get (url) {
-    return fetch('api/polls', {
+    return fetch(url, {
       credentials: 'include',
       method: 'GET'
     }).then((response) => {

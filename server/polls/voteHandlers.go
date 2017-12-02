@@ -8,6 +8,22 @@ import (
 	"net/http"
 )
 
+func GetVotes(c *gin.Context) {
+	user := c.MustGet("user").(users.User)
+	var votes []Vote
+	config.DB.Find(&votes).Where("user_id = ?", user.Id)
+	var dtos []VoteDto
+	for _, v := range votes {
+		dtos = append(dtos, VoteDto{
+			PollId: v.PollId,
+			Score1: v.Score1OptionId.String,
+			Score2: v.Score2OptionId.String,
+			Score3: v.Score3OptionId.String,
+		})
+	}
+	c.JSON(http.StatusOK, dtos)
+}
+
 func HandleVote(c *gin.Context) {
 	user := c.MustGet("user").(users.User)
 	v := Vote{}
