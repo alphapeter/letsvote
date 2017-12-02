@@ -9,8 +9,8 @@ import (
 )
 
 func UpdateOption(c *gin.Context) {
-	var p map[string]string
-	if err := c.BindJSON(&p); err != nil {
+	var o map[string]string
+	if err := c.BindJSON(&o); err != nil {
 		errorResponse(c, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -20,30 +20,33 @@ func UpdateOption(c *gin.Context) {
 		errorResponse(c, err.message(), err.responseCode())
 	}
 
-	hasBeenUpdated := false
-	if name, ok := p["name"]; ok {
+	updated := map[string]interface{}{}
+	if name, ok := o["name"]; ok {
 		option.Name = name
-		hasBeenUpdated = true
+		updated["name"] = name
 	}
 
-	if description, ok := p["description"]; ok {
+	if description, ok := o["description"]; ok {
 		option.Description = description
-		hasBeenUpdated = true
+		updated["description"] = description
 	}
-	if !hasBeenUpdated{
+	if len(updated) == 0{
 		errorResponse(c, "No valid fields for patch", http.StatusBadRequest)
 	}
 
-	if err := config.DB.Model(&option).Update(p).Error; err != nil {
+	if err := config.DB.Model(&option).Update(o).Error; err != nil {
 		errorResponse(c, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	updated["option_id"] = option.Id
+	updated["poll_id"] = option.PollId
 
 	c.JSON(http.StatusOK, struct {
 		Success bool `json:"success"`
 		Option    Option `json:"poll"`
 	}{true, option})
-	PollUpdated(option.Id)
+	OptionUpdated(updated)
 }
 
 func AddOption(c *gin.Context) {
@@ -107,7 +110,7 @@ func fetchOptionForEdit(c *gin.Context, idParameterName string) (Option, fetchEr
 	if err := config.DB.First(&option, "id = ?", id).Error; err != nil {
 		return option, unsuccessfulFetch{msg: err.Error(), code: http.StatusInternalServerError}
 	}
-	if (!hasPermissionToEdit(option, user)){
+	if !hasPermissionToEdit(option, user) {
 		return option, unautorizedFetch{}
 	}
 	return option, nil

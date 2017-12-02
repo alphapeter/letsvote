@@ -10,9 +10,12 @@ func PollCreated(id string) {
 	tap.Broadcast("POLL_CREATED", poll)
 }
 
-func PollUpdated(id string) {
-	poll,_ := FetchPoll(id)
-	tap.Broadcast("POLL_UPDATED", poll)
+func PollUpdated(update map[string] interface{}) {
+	tap.Broadcast("POLL_UPDATED", update)
+}
+
+func OptionUpdated(update map[string] interface{}) {
+	tap.Broadcast("OPTION_UPDATED", update)
 }
 
 func PollDeleted(id string) {
@@ -29,6 +32,14 @@ func OptionDeleted(pollId string, optionId string){
 		PollId string `json:"poll_id"`
 	}{ PollId: pollId, OptionId: optionId}
 	tap.Broadcast("OPTION_DELETED", payload)
+}
+
+func ScoreCountFailed(pollId string, error string) {
+	payload := struct {
+		PollId string `json:"poll_id"`
+		Error string `json:"message"`
+	}{ PollId: pollId, Error: error}
+	tap.Broadcast("POLL_SCORECOUNTFAILED", payload)
 }
 
 func UserVoted(userId string, pollId string) {

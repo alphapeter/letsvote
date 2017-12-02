@@ -21,9 +21,9 @@ const (
 )
 
 type VoteDto struct {
-	Score1OptionId string `json:"score_1"`
-	Score2OptionId string `json:"score_2"`
-	Score3OptionId string `json:"score_3"`
+	Score1 string `json:"score_1"`
+	Score2 string `json:"score_2"`
+	Score3 string `json:"score_3"`
 }
 
 type Vote struct {
@@ -39,7 +39,7 @@ type Option struct {
 	Name            string     `json:"name"`
 	Description     string     `json:"description"`
 	CreatedBy       users.User `json:"created_by" gorm:"ForeignKey:Id;AssociationForeignKey:CreatedByUserId"`
-	Score           uint       `json:"score"`
+	Score           int       `json:"score"`
 	CreatedByUserId string     `json:"-" sql:"type:text REFERENCES users(id)"`
 	PollId          string     `json:"poll_id" sql:"type:text REFERENCES polls(id)"`
 	CreatedAt       time.Time  `json:"created_at"`

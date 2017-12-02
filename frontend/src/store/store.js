@@ -35,9 +35,13 @@ export const store = new Vuex.Store({
     'POLL_DELETED' (state, id) {
       state.polls = state.polls.filter(poll => poll.id !== id)
     },
-    'POLL_UPDATED' (state, poll) {
-      let index = state.polls.findIndex(p => p.id === poll.id)
-      state.polls.splice(index, 1, poll)
+    'POLL_UPDATED' (state, update) {
+      let poll = state.polls.find(p => p.id === update.id)
+      for (var property in update) {
+        if (update.hasOwnProperty(property)) {
+          poll[property] = update[property]
+        }
+      }
     },
     'OPTION_CREATED' (state, option) {
       var poll = state.polls.find(poll => poll.id === option.poll_id)
@@ -47,6 +51,15 @@ export const store = new Vuex.Store({
       var poll = state.polls.find(poll => poll.id === payload.poll_id)
       var index = poll.options.findIndex(o => o.id === payload.option_id)
       poll.options.splice(index, 1)
+    },
+    'OPTION_UPDATED' (state, update) {
+      let poll = state.polls.find(poll => poll.id === update.poll_id)
+      var option = poll.options.find(o => o.id === update.option_id)
+      for (var property in update) {
+        if (update.hasOwnProperty(property)) {
+          option[property] = update[property]
+        }
+      }
     },
     'USER_CONNECT' (state, user) {
       if (!state.activeUsers.some(u => u.id === user.id)) {
@@ -110,6 +123,9 @@ export const store = new Vuex.Store({
     },
     'OPTION_DELETED' ({commit}, payload) {
       commit('OPTION_DELETED', payload)
+    },
+    'OPTION_UPDATED' ({commit}, payload) {
+      commit('OPTION_UPDATED', payload)
     },
     'USER_CONNECT' ({commit}, user) {
       commit('USER_CONNECT', user)

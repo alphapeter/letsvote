@@ -5,7 +5,12 @@
       <div class="name">{{poll.name}}</div>
       <span class="created" :title="createdBy">{{printDate}}</span>
       <input v-if="canDelete" class="deletePollButton" type="button" @click="deletePoll" value="Delete poll"/>
-      <input v-if="canActivate" class="activatePollButton" type="button" @click="activatePoll" value="Activate poll"/>
+      <div v-if="hasPermissionToEdit">
+        <input v-if="poll.status < 5" class="activatePollButton" type="button" @click="activatePoll" value="Activate poll"/>
+        <input v-else-if="poll.status < 8" class="activatePollButton" type="button" @click="endPoll" value="End poll"/>
+        <div v-else-if="poll.status < 10"> Counting scores </div>
+      </div>
+
     </div>
     <div class="description">{{poll.description}}</div>
     <hr/>
@@ -43,13 +48,10 @@
         gravatar.profilePicture(this.poll.created_by)
       },
       canDelete () {
-        return this.hasPermissionToEdit
+        return this.hasPermissionToEdit && this.poll.status === 0
       },
       hasPermissionToEdit () {
-        return this.$store.state.me && this.poll.created_by.id === this.$store.state.me.id && !this.statusActive
-      },
-      canActivate () {
-        return this.poll.options.length && this.statusCreated && this.hasPermissionToEdit
+        return this.$store.state.me && this.poll.created_by.id === this.$store.state.me.id
       },
       isLoggedIn () {
         return this.$store.state.me
@@ -80,16 +82,22 @@
           })
       },
       activatePoll () {
+        this.changeStatus('5')
+      },
+      endPoll () {
+        this.changeStatus('8')
+      },
+      changeStatus (code) {
         var store = this.$store
-        API.patch('api/polls/' + this.poll.id, { status: '5' })
+        API.patch('api/polls/' + this.poll.id, { status: code })
           .then((response) => {
             if (!response.success) {
               store.commit('error', {
-                message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
-                code: 500
+                message: response.reason || 'unexpected error :('
               })
             }
           }).catch((reason) => {
+            console.log(reason)
             store.commit('error', {
               message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
               code: reason.code
