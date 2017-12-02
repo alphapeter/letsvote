@@ -14,17 +14,24 @@ func InitModels() {
 type Status int
 
 const (
-	CREATED  = Status(0)
-	ACTIVE   = Status(5)
-	FINISHED = Status(10)
+	REGISTRATING = Status(0)
+	VOTING       = Status(5)
+	COUNTING     = Status(8)
+	ENDED        = Status(10)
 )
 
+type VoteDto struct {
+	Score1OptionId string `json:"score_1"`
+	Score2OptionId string `json:"score_2"`
+	Score3OptionId string `json:"score_3"`
+}
+
 type Vote struct {
-	UserId         string `json:"user_id" gorm:"primary_key" sql:"type:text REFERENCES users(id)"`
-	PollId         string `json:"poll_id" gorm:"primary_key" sql:"type:text REFERENCES polls(id)"`
-	Score1OptionId sql.NullString `json="score_1" sql:"type:text REFERENCES options(id)"`
-	Score2OptionId sql.NullString `json="score_2" sql:"type:text REFERENCES options(id)"`
-	Score3OptionId sql.NullString `json="score_3" sql:"type:text REFERENCES options(id)"`
+	UserId         string         `gorm:"primary_key" sql:"type:text REFERENCES users(id)"`
+	PollId         string         `gorm:"primary_key" sql:"type:text REFERENCES polls(id)"`
+	Score1OptionId sql.NullString `sql:"type:text REFERENCES options(id)"`
+	Score2OptionId sql.NullString `sql:"type:text REFERENCES options(id)"`
+	Score3OptionId sql.NullString `sql:"type:text REFERENCES options(id)"`
 }
 
 type Option struct {
@@ -65,4 +72,16 @@ func (p Poll) getUserId() string {
 
 func (o Option) getUserId() string {
 	return o.CreatedByUserId
+}
+
+func NullString(s string) sql.NullString {
+	if len(s) == 0 {
+		return sql.NullString{
+			Valid: false,
+		}
+	}
+	return sql.NullString{
+		Valid:  true,
+		String: s,
+	}
 }

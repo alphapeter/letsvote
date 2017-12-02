@@ -91,7 +91,10 @@ export const store = new Vuex.Store({
         }
         Vue.set(votes, levels[vote.score - 1], vote.option_id)
       }
-      commit('vote', votes)
+      API.post('/api/polls/' + vote.poll_id + '/vote', votes)
+        .then(result => {
+          commit('vote', votes)
+        })
     },
     'POLL_CREATED' ({commit}, poll) {
       commit('POLL_CREATED', poll)
