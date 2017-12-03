@@ -4,8 +4,7 @@
         <img class="profilePicture"
              v-bind:class="{voting: voting}"
              :src="profilePicture"
-             :title="user.name"
-             align="middle"/>
+             :title="user.name"/>
         <span class="username">{{user.name}}</span>
       </div>
 </template>
@@ -23,7 +22,7 @@
     props: ['user', 'picturesize'],
     computed: {
       profilePicture () {
-        return gravatar.profilePicture(this.user, 24)
+        return gravatar.profilePicture(this.user, 100)
       }
     },
     created () {
@@ -42,15 +41,21 @@
 
 <style scoped>
   .profilePicture {
-    border-radius: 15px;
+    border-radius: 0.5em;
+    vertical-align: middle;
+    height: 1em;
+    width: 1em;
   }
   .voting {
     border: 5px solid red;
   }
   .username {
     text-overflow: ellipsis;
-    line-height: 30px;
+    line-height: 100%;
     vertical-align: middle;
+  }
+  .userInfo {
+    border-bottom: 1px solid #ddd;
   }
 
 </style>

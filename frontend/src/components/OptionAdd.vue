@@ -1,8 +1,10 @@
 <template>
   <div class="option create">
-    <img :src="profilePicture">
-    <input type="text" placeholder="Create a new option..." style="border: none" v-model="newOption.name"/>
-    <textarea v-if="newOption.name" v-model="newOption.description" placeholder="description" rows="2"></textarea>
+    <img class="profilePicture" :src="profilePicture">
+    <div class="textInputs">
+      <input type="text" placeholder="Create a new option..." style="border: none" v-model="newOption.name"/>
+      <textarea v-if="newOption.name" v-model="newOption.description" placeholder="description" rows="2"></textarea>
+    </div>
     <input v-if="newOption.name" type="button" name="Add" @click="addOption()" value="Add"/>
   </div>
 </template>
@@ -58,9 +60,31 @@
 
 <style scoped>
   .option.create input[type=text], textarea {
-    width: calc(100% - 60px)
-  }
+       width: 100%;
+       font-size: 1em;
+     }
   .option {
-    margin: 10px;
+    margin: 0.5em;
+    position: relative;
+  }
+  .profilePicture {
+    height: 1em;
+    width: 1em;
+    vertical-align: top;
+    display: inline-block;
+  }
+  .textInputs {
+    position: relative;
+    width: calc(100% - 2em);
+    display: inline-block;
+  }
+
+  @media only screen
+  and (max-device-width : 1023px) {
+    input[type=button] {
+      margin: 0;
+      font-size: 1em;
+      width: calc(100%);
+    }
   }
 </style>

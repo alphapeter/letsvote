@@ -1,17 +1,19 @@
 <template>
   <div class="option">
-    <div class="position"
-         v-bind:class="{winner: isWinner, second: isSecond, third: isThird}"
-         v-if="poll.status >=10">
-      {{option.position}}
-    </div>
+    <div class="name">
+      <div class="position"
+           v-bind:class="{winner: isWinner, second: isSecond, third: isThird}"
+           v-if="poll.status >=10">
+        {{option.position}}
+      </div>
 
-    <img :src="profilePicture"/>
-    <span v-on:mouseenter="active = true"
-          v-on:mouseleave="active = false">
-      {{option.name}}
-      <span v-if="active">edit</span>
-    </span>
+      <img class="profilePicture" :src="profilePicture"/>
+      <span v-on:mouseenter="active = true"
+            v-on:mouseleave="active = false">
+        {{option.name}}
+        <span v-if="active">edit</span>
+      </span>
+    </div>
     <input v-if="canDelete" class="deleteOptionButton" type="button" name="delete" value="delete option" @click="deleteOption"/>
     <div v-if="canVote" class="votes" >
       <div class="vote noselect" v-bind:class="{none: score == 0}" @click="vote(0)">0</div>
@@ -125,23 +127,27 @@
   }
 </script>
 
-<style>
+<style scoped>
   .deleteOptionButton {
     float: right;
   }
   .option {
-    margin: 10px;
+    margin: 0.5em;
     position: relative;
+  }
+
+  .name {
+    max-width: 69%;
   }
   .votes {
     position: absolute;
-    right: 10px;
-    top: 2px;
+    right: 0;
+    top: 0.1em;
   }
   .vote {
     background-color: lightblue;
-    padding: 5px;
-    margin-left: 2px;
+    padding: 0.2em;
+    margin-left: 0.4em;
     float: left;
     cursor: pointer;
   }
@@ -150,12 +156,13 @@
   }
   .position {
     position: relative;
-    width: 22px;
-    height: 22px;
-    border-radius: 15px;
+    width: 1.2em;
+    height: 1.2em;
+    font-size: 100%;
+    border-radius: 0.6em;
     text-align: center;
     float: left;
-    margin-right: 15px;
+    margin-right: 0.5em;
     vertical-align: middle;
     display: inline-block;
   }
@@ -171,26 +178,33 @@
   .none {
     background-color: black;
   }
-  .noselect {
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
-  }
+
   .scoring {
-    width: 100px;
-    height: 22px;
+    height: 1em;
+    width: 10em;
     background-color: #e9ebee;
     position: absolute;
-    right: 0px;
-    top: 2px;
+    right: 0;
+    top: 0.2em;
+    max-width: 30%;
   }
   .meter {
     height: 100%;
     float: left;
     background-color: red;
+    text-align: right;
   }
+  .profilePicture {
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+  }
+
+  @media only screen
+  and (max-device-width : 1023px) {
+    .scoring {
+      width: 5em;
+    }
+  }
+
 </style>

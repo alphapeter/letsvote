@@ -1,20 +1,16 @@
 <template>
   <div class="poll">
-    <span class="status">{{status}}</span>
     <div class="header">
-      <div class="name">{{poll.name}}</div>
-      <span class="created" :title="createdBy">{{printDate}}</span>
-      <input v-if="canDelete" class="deletePollButton" type="button" @click="deletePoll" value="Delete poll"/>
-      <div v-if="hasPermissionToEdit">
+      <h2 class="name">{{poll.name}}</h2>
+      <div class="created" :title="createdBy"><span class="status">{{status}}</span>{{printDate}}</div>
+      <div class="editPoll" v-if="hasPermissionToEdit">
+        <input v-if="canDelete" class="deletePollButton" type="button" @click="deletePoll" value="Delete poll"/>
         <input v-if="poll.status < 5" class="activatePollButton" type="button" @click="activatePoll" value="Activate poll"/>
         <input v-else-if="poll.status < 8" class="activatePollButton" type="button" @click="endPoll" value="End poll"/>
         <div v-else-if="poll.status < 10"> Counting scores </div>
       </div>
-
     </div>
-    <div class="description">{{poll.description}}</div>
-    <hr/>
-    <div v-if="!poll.options.length">no options yet...</div>
+    <div v-if="false" class="description">{{poll.description}}</div>
 
 
     <poll-option v-for="option in options" :option="option" :poll="poll" :key="option.id" :totalScore="totalScore"></poll-option>
@@ -151,38 +147,50 @@
 
 <style scoped>
   .name {
-    font-size: x-large;
-    font-weight: bolder;
-    padding: 20px;
+    margin: 1em;
   }
   .created {
     position: absolute;
-    right: 10px;
-    top: 20px;
-    margin: 2px;
+    right: 0.5em;
+    top: 0.8em;
+    font-size: 0.8em;
+    margin: 0.1em;
   }
   .description {
     font-style: italic;
     margin: 10px;
   }
   .poll {
-    width: calc(100% - 400px);
     background-color: #FFF;
     margin-bottom: 20px;
     position: relative;
     border: 1px solid #e9e8e8;
     border-radius: 5px;
   }
-  .deletePollButton {
+  .editPoll {
     position: absolute;
     top: 50px;
     right: 5px;
   }
   .status {
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    border-radius: 5px;
+    font-size: 0.5em;
+    height: 1em;
+    margin-right: 0.5em;
+    border-radius: 0.2em;
     background-color: lightblue;
+  }
+  .header {
+    width: 100%;
+    border-bottom: 1px solid #e9ebee;
+  }
+
+  @media only screen
+  and (max-device-width : 1024px) {
+    .poll {
+      margin-bottom: 1em;
+    }
+    .created {
+      font-size: 20pt;
+    }
   }
 </style>

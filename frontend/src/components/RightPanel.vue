@@ -1,7 +1,10 @@
 <template>
   <div class="rightpanel">
-    Active users
-    <user v-for="user in activeUsers" :user="user" :key="user.id"></user>
+    <div class="content">
+      <label class="label">Active users</label>
+      <user v-for="user in activeUsers" :user="user" :key="user.id"></user>
+    </div>
+
   </div>
 </template>
 
@@ -28,12 +31,29 @@
 
 <style scoped>
   .rightpanel {
-    top: 100px;
+    top: 5em;
     right: 0;
-    width: 200px;
+    width: 10em;
     height: 100%;
     position: fixed;
   }
+  .label {
+    margin-left: 0.5em;
+    font-weight: bold;
+  }
+
+  .content {
+    margin-right: 0.4em;
+    margin-left: 0.4em;
+  }
+
+  @media only screen
+  and (max-device-width : 1023px) {
+    .rightpanel {
+      display: none;
+    }
+  }
+
 
 
 </style>

@@ -1,18 +1,21 @@
 <template>
   <div class="leftpanel">
-    <div class="userInfo">
+    <div class="content">
       <div>
         <user v-if="isLoggedIn" :user="user" :size="24"></user>
       </div>
-      <a href="/auth/logout"
-         v-if="isLoggedIn">
-      logout
-      </a>
+      <div class="center">
+        <a href="/auth/logout"
+           v-if="isLoggedIn">
+          logout
+        </a>
 
-    <a href="/auth/login/office365"
-       v-if="!isLoggedIn">
-    login
-    </a>
+        <a href="/auth/login/office365"
+           v-if="!isLoggedIn">
+          login
+        </a>
+      </div>
+
   </div>
   </div>
 </template>
@@ -41,19 +44,28 @@
 
 <style scoped>
   .leftpanel {
-    top: 100px;
+    top: 5em;
     left: 0;
-    width: 200px;
-    height: 100%;
+    width: 10em;
     position: fixed;
   }
-  .profilePicture {
-    border-radius: 15px;
+  .center {
+    text-align: center;
+    padding-top: 0.1em;
   }
-  .username {
-    text-overflow: ellipsis;
-    line-height: 30px;
-    vertical-align: middle;
+  .content {
+    margin-left: 0.4em;
+    margin-right: 0.4em;
+  }
+
+  @media only screen
+  and (max-device-width : 1023px) {
+    .leftpanel {
+      position: relative;
+      width: 100%;
+      text-align: center;
+      top: 0;
+    }
   }
 
 </style>

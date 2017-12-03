@@ -33,11 +33,22 @@
 <style scoped>
   .polls {
     position: relative;
-    left: 200px;
+    width: calc(100% - 20em);
+    left: 10em;
     margin-top: 120px;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 0;
+    margin-right: 0;
     position: relative;
     clear: both;
+  }
+
+  @media only screen
+  and (max-device-width : 1023px) {
+    .polls {
+      width: 100%;
+      top: 0;
+      left: 0;
+      margin-top: 20px;
+    }
   }
 </style>

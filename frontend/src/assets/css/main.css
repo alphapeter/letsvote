@@ -1,8 +1,26 @@
 html {
-  font-family: "Lucida Console", Monaco, monospace;
+  font-family: arial,sans-serif;
 }
 html, body {
   height: 100%;
   margin: 0;
   background-color: #e9ebee;
+  font-size: 1.2em;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+@media only screen
+and (max-device-width : 1024px) {
+  html, body {
+    font-size: 2em;
+  }
 }

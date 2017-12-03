@@ -2,7 +2,9 @@
   <div v-if="isLoggedIn" class="poll create">
     <input type="text" v-model="newPoll.name" placeholder="Create a new poll...">
     <textarea v-if="newPoll.name" v-model="newPoll.description" placeholder="description" rows="2"></textarea>
-    <input v-if="newPoll.name" @click="addPoll" type="button" value="create"/>
+    <div v-if="newPoll.name" class="buttonPlaceHolder">
+      <input @click="addPoll" type="button" value="create"/>
+    </div>
   </div>
 </template>
 
@@ -53,25 +55,53 @@
 
 <style scoped>
   .poll {
-    width: calc(100% - 400px);
+    width: 100%;
     background-color: #FFF;
-    margin-top: 20px;
-    margin-bottom: 50px;
+    margin-top: 1em;
+    margin-bottom: 1em;
     border: 1px solid #e9e8e8;
-    border-radius: 5px;
+    border-radius: 0.2em;
   }
   .poll.create input[type=text], textarea {
-    width: calc(100% - 10px);
-    margin: 5px;
+    width: calc(100% - 1em);
+    margin: 0.2em;
     border: none;
   }
 
   .poll.create input[type=text] {
-    font-size: 16px;
+    font-size: 1.2em;
   }
 
   .poll.create input[type=button] {
-    margin: 5px;
-    float: right;
+    margin: 0.2em;
+  }
+  .buttonPlaceHolder {
+    width: 100%;
+    text-align: right;
+  }
+
+  @media only screen
+  and (max-device-width : 1023px) {
+    .poll {
+      margin-bottom: 2em;
+    }
+    .poll input[type=text], textarea, input[type=button] {
+      margin: 0;
+      font-size: 1em;
+      width: 100%;
+    }
+
+    .buttonPlaceHolder {
+      text-align: center;
+      width: 100%;
+    }
+
+    .poll input[type=button] {
+      width: 95%
+    }
+    .poll.create input[type=text] {
+      width: calc(100% - 2em);
+    }
+
   }
 </style>

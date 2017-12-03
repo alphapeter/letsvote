@@ -1,8 +1,6 @@
 <template>
   <div class="header">
     <h1 class="headerTitle">Let's vote!</h1>
-
-
   </div>
 </template>
 
@@ -40,25 +38,17 @@
     width: 100%;
     text-align: center;
     background-color: lightskyblue;
+    height: 4em;
     z-index: 10;
   }
-
-  .header h1 {
-    padding: 10px;
+  h1 {
+    margin: 0.4em;
   }
 
-  .userInfo {
-    position: absolute;
-    right: 1px;
-    top: 1px;
-  }
-
-  .profilePicture {
-  }
-
-  .loginButton {
-    position: absolute;
-    right: 5px;
-    top: 12px;
+  @media only screen
+  and (max-device-width : 1023px) {
+    .header {
+      position: relative;
+    }
   }
 </style>
