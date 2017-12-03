@@ -1,0 +1,12 @@
+{
+  "open_id_connect_providers": [
+    {
+      "type": "office365",
+      "issuer_url": "https://sts.windows.net/<issuer>",
+      "client_id": "<client_id>",
+      "client_secret": "<client_secret_key>"
+    }
+  ],
+  "binding": "0.0.0.0:8000"
+}
+

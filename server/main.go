@@ -25,6 +25,7 @@ func main() {
 
 	router.GET("/", webui.HtmlHandler)
 	router.GET("/static/js/app.js", webui.JsHandler)
+	router.GET("/static/css/app.css", webui.CssHandler)
 
 	router.GET("/api/activeusers", tap.GetConnectedUsers)
 
@@ -44,7 +45,7 @@ func main() {
 
 	authorized.GET("api/votes", polls.GetVotes)
 
-	router.GET("/auth/fakelogin/:fakeuser", auth.FakeLoginHandler)
+	//router.GET("/auth/fakelogin/:fakeuser", auth.FakeLoginHandler)
 	router.GET("/auth/login/:provider", auth.LoginHandler)
 	router.GET("/auth/callback/:provider", auth.CallbackHandler)
 	router.GET("/auth/logout", auth.LogoutHandler)

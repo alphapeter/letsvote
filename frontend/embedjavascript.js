@@ -1,8 +1,8 @@
 var embed = require('./embedingo.js')
 
-var goPackageName = 'gui'
+var goPackageName = 'webui'
 var property = 'Javascript'
-var destinationFileName = '../server/gui/JavascriptBundle.go'
+var destinationFileName = '../server/webui/JavascriptBundle.go'
 var sourceFileName = 'dist/static/js/app.js'
 
 embed.run(goPackageName, property, destinationFileName, sourceFileName)

@@ -1,51 +1,44 @@
 language: go
 go:
-  - 1.8.1
+  - 1.9.2
 
 env:
   global:
-    - SETTINGS_PATH=$HOME/gopath/src/github.com/alphapeter/filecommander/exampleconfig
+    - SETTINGS_PATH=$HOME/gopath/src/github.com/alphapeter/letsvote/exampleconfig
     - ARTIFACT_PATH=$HOME/release/artifacts
     - OUTPUT_PATH=$HOME/release/output
+    - NAME=letsvote
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install build-essential
+  - sudo apt install gcc-mingw-w64-i686
+  - sudo apt install gcc-mingw-w64-x86-64
 
 script:
   - cd server
-  - GOOS=windows GOARCH=386 go build -o $OUTPUT_PATH/windows/x86/filecommander.exe main.go
-  - GOOS=windows GOARCH=amd64 go build -o $OUTPUT_PATH/windows/amd64/filecommander.exe main.go
-  - GOOS=linux GOARCH=386 go build -o $OUTPUT_PATH/linux/x86/filecommander main.go
-  - GOOS=linux GOARCH=amd64 go build -o $OUTPUT_PATH/linux/amd64/filecommander main.go
-  - GOOS=darwin GOARCH=amd64 go build -o $OUTPUT_PATH/osx/filecommander main.go
+  - GOOS=windows CC=i686-w64-mingw32-gcc CGO_ENABLED=1 GOARCH=386 go build -o $OUTPUT_PATH/windows/x86/$NAME.exe main.go
+  - GOOS=windows CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 GOARCH=amd64 go build -o $OUTPUT_PATH/windows/amd64/$NAME.exe main.go
+  - GOOS=linux CGO_ENABLED=1 GOARCH=amd64 go build -o $OUTPUT_PATH/linux/amd64/$NAME main.go
 
 before_deploy:
-  - chmod 755 $OUTPUT_PATH/linux/x86/filecommander
-  - chmod 755 $OUTPUT_PATH/linux/amd64/filecommander
+  - chmod 755 $OUTPUT_PATH/linux/amd64/$NAME
 
-  - chmod 755 $OUTPUT_PATH/osx/filecommander
+  - cp $SETTINGS_PATH/settings.json $OUTPUT_PATH/windows/x86/
+  - cp $SETTINGS_PATH/settings.json $OUTPUT_PATH/windows/amd64/
 
-  - cp $SETTINGS_PATH/windows/settings.json $OUTPUT_PATH/windows/x86/
-  - cp $SETTINGS_PATH/windows/settings.json $OUTPUT_PATH/windows/amd64/
-
-  - cp $SETTINGS_PATH/linux/settings.json $OUTPUT_PATH/linux/x86/
-  - cp $SETTINGS_PATH/linux/settings.json $OUTPUT_PATH/linux/amd64/
-
-  - cp $SETTINGS_PATH/linux/settings.json $OUTPUT_PATH/osx/
+  - cp $SETTINGS_PATH/settings.json $OUTPUT_PATH/linux/amd64/
 
   - mkdir $ARTIFACT_PATH
 
   - cd $OUTPUT_PATH/windows/x86/
-  - zip $ARTIFACT_PATH/filecommander-$TRAVIS_TAG-windows-32bit.zip ./*
+  - zip $ARTIFACT_PATH/$NAME-$TRAVIS_TAG-windows-32bit.zip ./*
 
   - cd $OUTPUT_PATH/windows/amd64
-  - zip $ARTIFACT_PATH/filecommander-$TRAVIS_TAG-windows-64bit.zip ./*
+  - zip $ARTIFACT_PATH/$NAME-$TRAVIS_TAG-windows-64bit.zip ./*
 
-
-  - cd $OUTPUT_PATH/linux/x86
-  - tar -cvzf $ARTIFACT_PATH/filecommander-$TRAVIS_TAG-linux-x86.tar.gz ./*
   - cd $OUTPUT_PATH/linux/amd64
-  - tar -cvzf $ARTIFACT_PATH/filecommander-$TRAVIS_TAG-linux-amd64.tar.gz ./*
-
-  - cd $OUTPUT_PATH/osx
-  - zip $ARTIFACT_PATH/filecommander-$TRAVIS_TAG-osx.zip ./*
+  - tar -cvzf $ARTIFACT_PATH/$NAME-$TRAVIS_TAG-linux-amd64.tar.gz ./*
 
 deploy:
   provider: releases

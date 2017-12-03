@@ -22,3 +22,9 @@
 
 # webpack output
 /*.log
+
+#dabase
+/*.db
+
+#secret app settings
+/settings.json
