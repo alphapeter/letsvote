@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/alphapeter/letsvote.svg?branch=master)](https://travis-ci.org/alphapeter/letsvote.svg?branch=master)
 # Lets vote
  
 # About
