@@ -102,21 +102,24 @@ export const store = new Vuex.Store({
         votes = { poll_id: vote.poll_id }
       }
 
-      let levels = ['score_1', 'score_2', 'score_3']
-      for (let l of levels) {
-        if (votes[l] && votes[l] === vote.option_id) {
-          Vue.set(votes, l, null)
+      let scoreProperties = ['score_1', 'score_2', 'score_3']
+      for (let property of scoreProperties) {
+        if (votes[property] && votes[property] === vote.option_id) {
+          Vue.set(votes, property, null)
         }
       }
       if (vote.score !== 0) {
-        var v = votes[levels[vote.score - 1]]
-        var v_ = votes[levels[vote.score - 2]]
+        var voteCollision = votes[scoreProperties[vote.score - 1]]
+        var lowerVote = votes[scoreProperties[vote.score - 2]]
         for (var i = vote.score - 1; i > 0; i--) {
-          v && Vue.set(votes, levels[i - 1], v)
-          v = v_
-          v_ = votes[levels[i - 2]]
+          if (!voteCollision) {
+            break
+          }
+          Vue.set(votes, scoreProperties[i - 1], voteCollision)
+          voteCollision = lowerVote
+          lowerVote = votes[scoreProperties[i - 2]]
         }
-        Vue.set(votes, levels[vote.score - 1], vote.option_id)
+        Vue.set(votes, scoreProperties[vote.score - 1], vote.option_id)
       }
       API.post('/api/polls/' + vote.poll_id + '/vote', votes)
         .then(result => {
