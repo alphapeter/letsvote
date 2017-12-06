@@ -8,10 +8,11 @@ import (
 )
 
 type OpenIdConnectProvider struct {
-	Type string `json:"type"`
-	IssuerUrl string `json:"issuer_url"`
-	ClientId string `json:"client_id"`
+	Type         string `json:"type"`
+	IssuerUrl    string `json:"issuer_url"`
+	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
+	BaseUrl      string `json:"base_url"`
 }
 
 type Settings struct {

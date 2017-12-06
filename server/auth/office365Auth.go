@@ -28,7 +28,7 @@ func CreateOffice365Auth(settings config.OpenIdConnectProvider) (Office365Auth, 
 		ClientID:     settings.ClientId,
 		ClientSecret: settings.ClientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  "http://localhost:8080/auth/callback/office365",
+		RedirectURL:  settings.BaseUrl + "/auth/callback/office365",
 		Scopes:       []string{oidc.ScopeOpenID, "profile"},
 	}
 
@@ -40,7 +40,8 @@ func CreateOffice365Auth(settings config.OpenIdConnectProvider) (Office365Auth, 
 }
 
 func (auth *Office365Auth) Login(state string, w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, auth.config.AuthCodeURL(state), http.StatusFound)
+	s := auth.config.AuthCodeURL(state)
+	http.Redirect(w, r, s, http.StatusFound)
 }
 
 func (auth *Office365Auth) AuthResponse(state string, w http.ResponseWriter, r *http.Request) (users.User, error){

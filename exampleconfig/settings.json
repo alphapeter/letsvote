@@ -4,7 +4,8 @@
       "type": "office365",
       "issuer_url": "https://sts.windows.net/<issuer>",
       "client_id": "<client_id>",
-      "client_secret": "<client_secret_key>"
+      "client_secret": "<client_secret_key>",
+      "base_url": "https://www.letsvote.com"
     }
   ],
   "binding": "0.0.0.0:8000"
