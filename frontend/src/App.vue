@@ -42,7 +42,10 @@
       }
       this.$store.dispatch('init', user)
 
-      var url = 'ws://' + window.location.host + '/tap'
+      var socketProtocol = window.location.protocol.toLowerCase().indexOf('https') !== -1
+        ? 'wss://'
+        : 'ws://'
+      var url = socketProtocol + window.location.host + '/tap'
       var ws = new WebSocket(url)
       var store = this.$store
       ws.onmessage = function (message) {
