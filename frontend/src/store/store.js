@@ -88,6 +88,9 @@ export const store = new Vuex.Store({
       if (state.me) {
         API.get('/api/votes')
           .then((votes) => {
+            if (votes === null) {
+              return
+            }
             var map = {}
             for (var vote of votes) {
               map[vote.poll_id] = vote
