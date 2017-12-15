@@ -3,15 +3,48 @@
     <div class="header">
       <h2 class="name">{{poll.name}}</h2>
       <div class="created" :title="createdBy"><span class="status">{{status}}</span>{{printDate}}</div>
+      <div v-if="poll.status < 10 && poll.status > 8"> Counting scores </div>
+
       <div class="editPoll" v-if="hasPermissionToEdit">
-        <input v-if="canDelete" class="deletePollButton" type="button" @click="deletePoll" value="Delete poll"/>
-        <input v-if="poll.status < 5" class="activatePollButton" type="button" @click="activatePoll" value="Activate poll"/>
-        <input v-else-if="poll.status < 8" class="activatePollButton" type="button" @click="endPoll" value="End poll"/>
-        <div v-else-if="poll.status < 10"> Counting scores </div>
+
+        <span @click="showMenu = !showMenu">
+          <font-awesome :icon="icons.bars"/>
+        </span>
+        <div class="menu" v-if="showMenu">
+          <span title="delete poll"
+                class="deletePoll"
+                v-if="canDelete"
+                @click="confirmDelete">
+            <font-awesome :icon="icons.trash"/>
+          </span>
+          <div v-if="showConfirmDelete"
+               class="confirmDelete">
+            Delete?
+            <div>
+              <span @click="showConfirmDelete = false">No!</span>
+              <span @click="deletePoll">Yes</span>
+            </div>
+          </div>
+          <span title="Start poll"
+                v-if="poll.status < 5"
+                @click="activatePoll">
+            <font-awesome :icon="icons.start"/>
+          </span>
+          <span title="End poll"
+                v-else-if="poll.status < 8"
+                @click="endPoll">
+            <font-awesome :icon="icons.finish"/>
+          </span>
+          <span title="Back status"
+                v-if="poll.status >= 5"
+                @click="backStatus">
+            <font-awesome :icon="icons.back"/>
+          </span>
+
+        </div>
       </div>
     </div>
     <div v-if="false" class="description">{{poll.description}}</div>
-
 
     <poll-option v-for="option in options" :option="option" :poll="poll" :key="option.id" :totalScore="totalScore"></poll-option>
 
@@ -27,13 +60,31 @@
   import PollOption from './Option.vue'
   import PollOptionAdd from './OptionAdd.vue'
   import { gravatar } from '../gravatar.js'
+  import FontAwesome from '@fortawesome/vue-fontawesome'
+  import { faTrashAlt, faBars, faFlagCheckered, faPlay, faStepBackward } from '@fortawesome/fontawesome-free-solid'
   export default {
     props: ['poll'],
     components: {
       PollOption,
-      PollOptionAdd
+      PollOptionAdd,
+      FontAwesome
+    },
+    data () {
+      return {
+        showMenu: false,
+        showConfirmDelete: false
+      }
     },
     computed: {
+      icons () {
+        return {
+          trash: faTrashAlt,
+          bars: faBars,
+          finish: faFlagCheckered,
+          start: faPlay,
+          back: faStepBackward
+        }
+      },
       options () {
         if (this.poll.status < 10) {
           this.poll.options.sort((a, b) => {
@@ -53,7 +104,6 @@
             if (i + 1 < this.poll.options.length && this.poll.options[i + 1].score !== option.score) {
               position++
             }
-            console.log('hejs')
           }
         }
         return this.poll.options
@@ -72,7 +122,7 @@
         gravatar.profilePicture(this.poll.created_by)
       },
       canDelete () {
-        return this.hasPermissionToEdit && this.poll.status === 0
+        return this.hasPermissionToEdit
       },
       hasPermissionToEdit () {
         return this.$store.state.me && this.poll.created_by.id === this.$store.state.me.id
@@ -101,6 +151,9 @@
       }
     },
     methods: {
+      confirmDelete () {
+        this.showConfirmDelete = true
+      },
       deletePoll () {
         var store = this.$store
         API.delete('api/polls/' + this.poll.id)
@@ -124,8 +177,18 @@
       endPoll () {
         this.changeStatus('8')
       },
+      backStatus () {
+        if (this.poll.status <= 5) {
+          this.changeStatus('0')
+        } else if (this.poll.status <= 10) {
+          this.changeStatus('5')
+        } else {
+          this.changeStatus('5')
+        }
+      },
       changeStatus (code) {
         var store = this.$store
+        this.showMenu = false
         API.patch('api/polls/' + this.poll.id, { status: code })
           .then((response) => {
             if (!response.success) {
@@ -169,8 +232,15 @@
   }
   .editPoll {
     position: absolute;
-    top: 50px;
-    right: 5px;
+    top: 2em;
+    right: 0.5em;
+  }
+
+  .editPoll span {
+    cursor: pointer;
+  }
+  .editPoll span:hover {
+    color: #777;
   }
   .status {
     font-size: 0.5em;
@@ -182,6 +252,26 @@
   .header {
     width: 100%;
     border-bottom: 1px solid #e9ebee;
+  }
+  .menu {
+    position: absolute;
+    right: 0.5em;
+    background: #fff;
+    border: 1px solid gray;
+    width: 6em;
+    z-index: 2;
+  }
+
+  .menu > span {
+    float: right;
+    padding: 0.4em;
+  }
+  .confirmDelete {
+    position: absolute;
+    top: 2em;
+    background: #ffffff;
+    right: 0;
+    border: 1px solid red;
   }
 
   @media only screen

@@ -9,6 +9,7 @@ import (
 	"gopkg.in/olahol/melody.v1"
 	"net/http"
 	"sync"
+	"time"
 )
 
 var socket *melody.Melody
@@ -35,6 +36,22 @@ func Init(router *gin.Engine) {
 	connectionStatus.Sessions = make(map[*melody.Session]users.User)
 	connectionStatus.ConnectedUsers = make(map[string]*connectionInfo)
 	connectionStatus.Lock = new(sync.Mutex)
+
+
+	heartbeat := time.NewTicker(20 * time.Second)
+	quit := make(chan struct{})
+	go func() {
+		for {
+			select {
+			case <- heartbeat.C:
+				Broadcast("heartbeat", "")
+			case <- quit:
+				heartbeat.Stop()
+				return
+			}
+		}
+	}()
+
 
 	router.GET("/tap", func(c *gin.Context) {
 		socket.HandleRequest(c.Writer, c.Request)

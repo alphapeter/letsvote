@@ -28,9 +28,6 @@
       return {
       }
     },
-    methods: {
-
-    },
     created () {
       var user = null
       try {
@@ -41,21 +38,39 @@
         user = null
       }
       this.$store.dispatch('init', user)
+      this.initWebSocket()
 
-      var socketProtocol = window.location.protocol.toLowerCase().indexOf('https') !== -1
-        ? 'wss://'
-        : 'ws://'
-      var url = socketProtocol + window.location.host + '/tap'
-      var ws = new WebSocket(url)
-      var store = this.$store
-      ws.onmessage = function (message) {
-        var event = JSON.parse(message.data)
-        store.dispatch(event.event, event.payload)
-        console.log(event)
-      }
+      var lastTime = (new Date()).getTime()
+
+      setInterval(function () {
+        var currentTime = (new Date()).getTime()
+        if (currentTime > (lastTime + 2000 * 2)) {
+          window.location.reload()
+        }
+        lastTime = currentTime
+      }, 2000)
     },
     destroyed () {
 
+    },
+    methods: {
+      initWebSocket () {
+        var socketProtocol = window.location.protocol.toLowerCase().indexOf('https') !== -1
+          ? 'wss://'
+          : 'ws://'
+        var url = socketProtocol + window.location.host + '/tap'
+        var ws = new WebSocket(url)
+        var store = this.$store
+        ws.onmessage = function (message) {
+          var data = JSON.parse(message.data)
+          if (data.event === 'heartbeat') {
+            return
+          }
+          store.dispatch(data.event, data.payload)
+          console.log(data)
+        }
+        return ws
+      }
     }
   }
 </script>
