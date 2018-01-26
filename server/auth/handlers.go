@@ -115,5 +115,6 @@ func invalidateSession(ctx *gin.Context, sessionId string, err error) {
 }
 
 func newSessionId() string {
-	return uuid.NewV4().String()
+	uuid, _ := uuid.NewV4()
+	return uuid.String()
 }
