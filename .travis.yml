@@ -18,7 +18,7 @@ script:
   - npm run build:all
 
 before_deploy:
-  - npm run create:artifact
+  - npm run create:artifacts
 
 deploy:
   provider: releases
