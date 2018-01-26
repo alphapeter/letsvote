@@ -156,7 +156,8 @@ func AddPoll(c *gin.Context) {
 
 	p.CreatedByUserId = user.Id
 	p.CreatedBy = user
-	p.Id = uuid.NewV4().String()
+	id, _ := uuid.NewV4()
+	p.Id = id.String()
 	err := config.DB.Create(&p).Error
 
 	if err != nil {

@@ -68,7 +68,8 @@ func AddOption(c *gin.Context) {
 
 	o.PollId = poll.Id
 	o.CreatedByUserId = user.Id
-	o.Id = uuid.NewV1().String()
+	id, _ := uuid.NewV1()
+	o.Id = id.String()
 	err := config.DB.Create(&o).Error
 
 	if err != nil {
