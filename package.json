@@ -1,0 +1,31 @@
+{
+  "name": "letsvote",
+  "version": "0.6.0",
+  "description": "Voting application",
+  "main": "index.js",
+  "config": {
+	"binary_name": "letsvote",
+	"settings_path": "exampleconfig",
+        "artifact_path": "build/artifacts",
+        "output_path": "build"
+	},
+  "scripts": {
+    "build:all": "npm run build:frontend && npm run compile:all",
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "get:dep:server": "cd server && go get ./...",
+    "compile:all": "npm run get:dep:server && npm run compile:win32 && npm run compile:win64 && npm run compile:linux64",
+    "compile:win32": "GOOS=windows CC=i686-w64-mingw32-gcc CGO_ENABLED=1 GOARCH=386 go build -o $npm_package_config_output_path/windows/x86/$npm_package_config_binary_name.exe server/main.go",
+    "compile:win64": "GOOS=windows CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 GOARCH=amd64 go build -o $npm_package_config_output_path/windows/amd64/$npm_package_config_binary_name.exe server/main.go",
+    "compile:linux64": "GOOS=linux CGO_ENABLED=1 GOARCH=amd64 go build -o $npm_package_config_output_path/linux/amd64/$npm_package_config_binary_name server/main.go",
+    "create:artifacts": "sh create_artifacts.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alphapeter/letsvote.git"
+  },
+  "author": "Peter Klaesson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alphapeter/letsvote/issues"
+  }
+}

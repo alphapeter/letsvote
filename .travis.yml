@@ -1,13 +1,12 @@
 language: go
 go:
-  - 1.9.2
+  - 1.9.3
+
+node_js:
+  - "8.0"
 
 env:
   global:
-    - SETTINGS_PATH=$HOME/gopath/src/github.com/alphapeter/letsvote/exampleconfig
-    - ARTIFACT_PATH=$HOME/release/artifacts
-    - OUTPUT_PATH=$HOME/release/output
-    - NAME=letsvote
 
 before_install:
   - sudo apt-get update
@@ -16,35 +15,16 @@ before_install:
   - sudo apt install gcc-mingw-w64-x86-64
 
 script:
-  - cd server
-  - GOOS=windows CC=i686-w64-mingw32-gcc CGO_ENABLED=1 GOARCH=386 go build -o $OUTPUT_PATH/windows/x86/$NAME.exe main.go
-  - GOOS=windows CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 GOARCH=amd64 go build -o $OUTPUT_PATH/windows/amd64/$NAME.exe main.go
-  - GOOS=linux CGO_ENABLED=1 GOARCH=amd64 go build -o $OUTPUT_PATH/linux/amd64/$NAME main.go
+  - npm run build:all
 
 before_deploy:
-  - chmod 755 $OUTPUT_PATH/linux/amd64/$NAME
-
-  - cp $SETTINGS_PATH/settings.json $OUTPUT_PATH/windows/x86/
-  - cp $SETTINGS_PATH/settings.json $OUTPUT_PATH/windows/amd64/
-
-  - cp $SETTINGS_PATH/settings.json $OUTPUT_PATH/linux/amd64/
-
-  - mkdir $ARTIFACT_PATH
-
-  - cd $OUTPUT_PATH/windows/x86/
-  - zip $ARTIFACT_PATH/$NAME-$TRAVIS_TAG-windows-32bit.zip ./*
-
-  - cd $OUTPUT_PATH/windows/amd64
-  - zip $ARTIFACT_PATH/$NAME-$TRAVIS_TAG-windows-64bit.zip ./*
-
-  - cd $OUTPUT_PATH/linux/amd64
-  - tar -cvzf $ARTIFACT_PATH/$NAME-$TRAVIS_TAG-linux-amd64.tar.gz ./*
+  - npm run create:artifact
 
 deploy:
   provider: releases
   skip_cleanup: true
   file_glob: true
   api_key: $GITHUB_DEPLOY_KEY
-  file: $HOME/release/artifacts/*
+  file: build/artifacts/*
   on:
     tags: true
