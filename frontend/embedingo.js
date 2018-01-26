@@ -5,6 +5,8 @@ exports.run = function (goPackageName, variable, destinationFileName, sourceFile
         " \n ** package: '" + goPackageName + "', " + "variable: '" + variable + "'\n")
   var content = fs.readFileSync(sourceFileName, {encoding: 'utf8'})
 
+  content = content.replace('`', '`+ "`" +`') // escape backticks
+
   fs.writeFileSync(destinationFileName,
         'package ' + goPackageName + '\n\n' +
         'var ' + variable + ' = []byte(`' +
