@@ -11,7 +11,7 @@ import (
 func GetVotes(c *gin.Context) {
 	user := c.MustGet("user").(users.User)
 	var votes []Vote
-	config.DB.Find(&votes).Where("user_id = ?", user.Id)
+	config.DB.Find(&votes,"user_id = ?", user.Id)
 	var dtos []VoteDto
 	for _, v := range votes {
 		dtos = append(dtos, VoteDto{
@@ -72,7 +72,11 @@ func HandleVote(c *gin.Context) {
 	v.Score1OptionId = NullString(update.Score1)
 	v.Score2OptionId = NullString(update.Score2)
 	v.Score3OptionId = NullString(update.Score3)
-	config.DB.Save(&v)
+
+	if err = config.DB.Save(&v).Error; err != nil {
+		errorResponse(c, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	UserVoted(user.Id, pollId)
 	c.JSON(http.StatusOK, struct {
