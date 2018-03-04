@@ -68,7 +68,7 @@ func AddOption(c *gin.Context) {
 
 	o.PollId = poll.Id
 	o.CreatedByUserId = user.Id
-	id, _ := uuid.NewV1()
+	id := uuid.NewV1()
 	o.Id = id.String()
 	err := config.DB.Create(&o).Error
 
@@ -83,6 +83,7 @@ func AddOption(c *gin.Context) {
 	}{true, o})
 	OptionCreated(o.Id)
 }
+
 func DeleteOption(c *gin.Context){
 
 	option, err := fetchOptionForEdit(c, "optionId")

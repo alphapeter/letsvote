@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"net/http"
+	"github.com/gin-gonic/gin/binding"
 )
 
 func GetVotes(c *gin.Context) {
@@ -40,7 +41,7 @@ func HandleVote(c *gin.Context) {
 	}
 
 	update := VoteDto{}
-	c.ShouldBindJSON(&update)
+	c.ShouldBindWith(&update, binding.JSON)
 
 	if poll.Status > VOTING {
 		errorResponse(c, "Votes cannot be added to a poll that has ended", http.StatusBadRequest)
