@@ -4,15 +4,15 @@ import (
 	"github.com/alphapeter/letsvote/server/config"
 	"github.com/alphapeter/letsvote/server/users"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/jinzhu/gorm"
 	"net/http"
-	"github.com/gin-gonic/gin/binding"
 )
 
 func GetVotes(c *gin.Context) {
 	user := c.MustGet("user").(users.User)
 	var votes []Vote
-	config.DB.Find(&votes,"user_id = ?", user.Id)
+	config.DB.Find(&votes, "user_id = ?", user.Id)
 	var dtos []VoteDto
 	for _, v := range votes {
 		dtos = append(dtos, VoteDto{

@@ -6,15 +6,15 @@ import (
 )
 
 func PollCreated(id string) {
-	poll,_ := FetchPoll(id)
+	poll, _ := FetchPoll(id)
 	tap.Broadcast("POLL_CREATED", poll)
 }
 
-func PollUpdated(update map[string] interface{}) {
+func PollUpdated(update map[string]interface{}) {
 	tap.Broadcast("POLL_UPDATED", update)
 }
 
-func OptionUpdated(update map[string] interface{}) {
+func OptionUpdated(update map[string]interface{}) {
 	tap.Broadcast("OPTION_UPDATED", update)
 }
 
@@ -23,22 +23,22 @@ func PollDeleted(id string) {
 }
 
 func OptionCreated(id string) {
-	option,_ := FetchOption(id)
+	option, _ := FetchOption(id)
 	tap.Broadcast("OPTION_CREATED", option)
 }
-func OptionDeleted(pollId string, optionId string){
+func OptionDeleted(pollId string, optionId string) {
 	payload := struct {
 		OptionId string `json:"option_id"`
-		PollId string `json:"poll_id"`
-	}{ PollId: pollId, OptionId: optionId}
+		PollId   string `json:"poll_id"`
+	}{PollId: pollId, OptionId: optionId}
 	tap.Broadcast("OPTION_DELETED", payload)
 }
 
 func ScoreCountFailed(pollId string, error string) {
 	payload := struct {
 		PollId string `json:"poll_id"`
-		Error string `json:"message"`
-	}{ PollId: pollId, Error: error}
+		Error  string `json:"message"`
+	}{PollId: pollId, Error: error}
 	tap.Broadcast("POLL_SCORECOUNTFAILED", payload)
 }
 
@@ -69,4 +69,3 @@ func FetchOption(id string) (Option, error) {
 		First(&option, "id = ?", id).Error
 	return option, err
 }
-

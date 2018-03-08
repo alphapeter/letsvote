@@ -8,14 +8,14 @@ type fetchError interface {
 }
 
 type unsuccessfulFetch struct {
-	msg string
+	msg  string
 	code int
 }
 
-func (f unsuccessfulFetch) message() string{
+func (f unsuccessfulFetch) message() string {
 	return f.msg
 }
-func (f unsuccessfulFetch) responseCode() int{
+func (f unsuccessfulFetch) responseCode() int {
 	return f.code
 }
 

@@ -36,7 +36,7 @@ type Vote struct {
 }
 
 type Option struct {
-	Id              string     `json:"id", gorm:"primary_key"`
+	Id              string     `json:"id" gorm:"primary_key"`
 	Name            string     `json:"name"`
 	Description     string     `json:"description"`
 	CreatedBy       users.User `json:"created_by" gorm:"ForeignKey:Id;AssociationForeignKey:CreatedByUserId"`

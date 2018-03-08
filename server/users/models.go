@@ -4,8 +4,8 @@ import (
 	"crypto/md5"
 	"fmt"
 	"github.com/alphapeter/letsvote/server/config"
-	"time"
 	"strings"
+	"time"
 )
 
 func InitModels() {
@@ -14,12 +14,13 @@ func InitModels() {
 }
 
 type User struct {
-	Id        string    `json:"id", gorm:"primary_key"`
-	Email     string    `json:"-", gorm:"unique"`
-	Gravatar  string    `json:"gravatar"`
-	Name      string    `json:"name", gorm:"type:varchar(100)"`
+	Id        string    `json:"id" gorm:"primary_key"`
+	Email     string    `json:"-" gorm:"unique"`
+	Gravatar  string    `json:"gravatar" gorm:"type:varchar(80)"`
+	Name      string    `json:"name" gorm:"type:varchar(100)"`
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`
+	IsAdmin   bool      `json:"is_admin" sql:"not null;DEFAULT:FALSE"`
 }
 
 type Session struct {

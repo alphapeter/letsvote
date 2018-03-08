@@ -5,7 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func SetSession(user User, sessionId string) error{
+func SetSession(user User, sessionId string) error {
 	session := Session{
 		Id:     sessionId,
 		UserId: user.Id,

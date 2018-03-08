@@ -15,7 +15,7 @@ import (
 var socket *melody.Melody
 
 type connectionInfo struct {
-	user users.User
+	user     users.User
 	sessions map[*melody.Session]bool
 }
 
@@ -37,21 +37,19 @@ func Init(router *gin.Engine) {
 	connectionStatus.ConnectedUsers = make(map[string]*connectionInfo)
 	connectionStatus.Lock = new(sync.Mutex)
 
-
 	heartbeat := time.NewTicker(20 * time.Second)
 	quit := make(chan struct{})
 	go func() {
 		for {
 			select {
-			case <- heartbeat.C:
+			case <-heartbeat.C:
 				Broadcast("heartbeat", "")
-			case <- quit:
+			case <-quit:
 				heartbeat.Stop()
 				return
 			}
 		}
 	}()
-
 
 	router.GET("/tap", func(c *gin.Context) {
 		socket.HandleRequest(c.Writer, c.Request)
@@ -62,7 +60,7 @@ func Init(router *gin.Engine) {
 		UserConnected(user, s)
 		users := GetConnectedUserList()
 		message := Message{
-			Event: "CONNECTED_USERS",
+			Event:   "CONNECTED_USERS",
 			Payload: users,
 		}
 		if json, err := json.Marshal(message); err == nil {
@@ -94,7 +92,7 @@ func UserConnected(user users.User, s *melody.Session) {
 	connectionStatus.Sessions[s] = user
 	if connectionStatus.ConnectedUsers[user.Id] == nil {
 		connectionStatus.ConnectedUsers[user.Id] = &connectionInfo{
-			user: user,
+			user:     user,
 			sessions: make(map[*melody.Session]bool),
 		}
 

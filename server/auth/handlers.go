@@ -1,17 +1,17 @@
 package auth
 
 import (
+	"encoding/json"
+	"github.com/alphapeter/letsvote/server/config"
+	"github.com/alphapeter/letsvote/server/users"
 	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
 	"net/http"
-	"github.com/alphapeter/letsvote/server/users"
-	"github.com/alphapeter/letsvote/server/config"
-	"encoding/json"
 	"net/url"
 )
 
 var office365 Office365Auth
-var sessions map[string] users.Session
+var sessions map[string]users.Session
 
 func Init(providers []config.OpenIdConnectProvider) {
 	for _, provider := range providers {
@@ -27,12 +27,12 @@ func LoginHandler(c *gin.Context) {
 	switch provider {
 	case "office365":
 		sessionId := newSessionId()
-		c.SetCookie(SessionCookieName, sessionId, 600, "/", "",false, true)
-		c.SetCookie(UserCookieName, "true", -1, "/", "",false, false)
+		c.SetCookie(SessionCookieName, sessionId, 600, "/", "", false, true)
+		c.SetCookie(UserCookieName, "true", -1, "/", "", false, false)
 		office365.Login(sessionId, c.Writer, c.Request)
 		break
 	default:
-		c.String(http.StatusNotFound, "provider " + provider + "not found")
+		c.String(http.StatusNotFound, "provider "+provider+"not found")
 	}
 }
 
@@ -40,17 +40,17 @@ func LogoutHandler(c *gin.Context) {
 	if sessionId, err := c.Cookie(SessionCookieName); err == nil {
 		users.DeleteSession(sessionId)
 	}
-	c.SetCookie(SessionCookieName, "", -1, "/", "",false, true)
-	c.SetCookie(UserCookieName, "", -1, "/", "",false, false)
+	c.SetCookie(SessionCookieName, "", -1, "/", "", false, true)
+	c.SetCookie(UserCookieName, "", -1, "/", "", false, false)
 	c.Redirect(http.StatusFound, "/")
 }
 
 func FakeLoginHandler(c *gin.Context) {
 	userId := c.Params.ByName("fakeuser")
 	fakeUser := users.User{
-		Name: userId,
+		Name:  userId,
 		Email: "fake@fake.com",
-		Id: userId,
+		Id:    userId,
 	}
 	user, err := users.GetOrCreateUser(fakeUser)
 	sessionId := newSessionId()

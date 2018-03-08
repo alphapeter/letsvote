@@ -16,7 +16,7 @@ type OpenIdConnectProvider struct {
 }
 
 type Settings struct {
-	Binding string `json:"binding""`
+	Binding                string                  `json:"binding""`
 	OpenIdConnectProviders []OpenIdConnectProvider `json:"open_id_connect_providers"`
 }
 

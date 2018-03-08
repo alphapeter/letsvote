@@ -1,11 +1,11 @@
 package polls
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
-	"github.com/alphapeter/letsvote/server/users"
-	"github.com/satori/go.uuid"
 	"github.com/alphapeter/letsvote/server/config"
+	"github.com/alphapeter/letsvote/server/users"
+	"github.com/gin-gonic/gin"
+	"github.com/satori/go.uuid"
+	"net/http"
 )
 
 func UpdateOption(c *gin.Context) {
@@ -15,7 +15,7 @@ func UpdateOption(c *gin.Context) {
 		return
 	}
 
-	option, err:= fetchOptionForEdit(c, "optionId")
+	option, err := fetchOptionForEdit(c, "optionId")
 	if err != nil {
 		errorResponse(c, err.message(), err.responseCode())
 	}
@@ -30,7 +30,7 @@ func UpdateOption(c *gin.Context) {
 		option.Description = description
 		updated["description"] = description
 	}
-	if len(updated) == 0{
+	if len(updated) == 0 {
 		errorResponse(c, "No valid fields for patch", http.StatusBadRequest)
 	}
 
@@ -43,8 +43,8 @@ func UpdateOption(c *gin.Context) {
 	updated["poll_id"] = option.PollId
 
 	c.JSON(http.StatusOK, struct {
-		Success bool `json:"success"`
-		Option    Option `json:"poll"`
+		Success bool   `json:"success"`
+		Option  Option `json:"poll"`
 	}{true, option})
 	OptionUpdated(updated)
 }
@@ -78,13 +78,13 @@ func AddOption(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, struct {
-		Success bool `json:"success"`
-		Option    Option `json:"option"`
+		Success bool   `json:"success"`
+		Option  Option `json:"option"`
 	}{true, o})
 	OptionCreated(o.Id)
 }
 
-func DeleteOption(c *gin.Context){
+func DeleteOption(c *gin.Context) {
 
 	option, err := fetchOptionForEdit(c, "optionId")
 	if err != nil {
@@ -97,12 +97,10 @@ func DeleteOption(c *gin.Context){
 	pollId := option.PollId
 	config.DB.Delete(&option, "id = ?", option.Id)
 	c.JSON(http.StatusOK, struct {
-		Success 		bool `json:"success"`
-	}{true })
+		Success bool `json:"success"`
+	}{true})
 	OptionDeleted(pollId, optionId)
 }
-
-
 
 func fetchOptionForEdit(c *gin.Context, idParameterName string) (Option, fetchError) {
 	id := c.Param(idParameterName)

@@ -2,14 +2,14 @@ package auth
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"github.com/alphapeter/letsvote/server/config"
+	"github.com/alphapeter/letsvote/server/users"
 	"github.com/coreos/go-oidc"
 	"golang.org/x/oauth2"
 	"log"
 	"net/http"
-	"fmt"
-	"github.com/alphapeter/letsvote/server/config"
-	"errors"
-	"github.com/alphapeter/letsvote/server/users"
 )
 
 func CreateOffice365Auth(settings config.OpenIdConnectProvider) (Office365Auth, error) {
@@ -44,7 +44,7 @@ func (auth *Office365Auth) Login(state string, w http.ResponseWriter, r *http.Re
 	http.Redirect(w, r, s, http.StatusFound)
 }
 
-func (auth *Office365Auth) AuthResponse(state string, w http.ResponseWriter, r *http.Request) (users.User, error){
+func (auth *Office365Auth) AuthResponse(state string, w http.ResponseWriter, r *http.Request) (users.User, error) {
 	user := users.User{}
 	s := r.URL.Query().Get("state")
 	if s != state {
@@ -52,7 +52,7 @@ func (auth *Office365Auth) AuthResponse(state string, w http.ResponseWriter, r *
 	}
 	oauth2Token, err := auth.config.Exchange(auth.ctx, r.URL.Query().Get("code"))
 	if err != nil {
-		return user, errors.New("Failed to exchange token: "+err.Error())
+		return user, errors.New("Failed to exchange token: " + err.Error())
 	}
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 	if !ok {
@@ -60,7 +60,7 @@ func (auth *Office365Auth) AuthResponse(state string, w http.ResponseWriter, r *
 	}
 	idToken, err := auth.verifier.Verify(auth.ctx, rawIDToken)
 	if err != nil {
-		return user, errors.New("Failed to verify ID Token: "+err.Error())
+		return user, errors.New("Failed to verify ID Token: " + err.Error())
 	}
 
 	claims := Office365claims{}

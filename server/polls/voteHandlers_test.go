@@ -5,7 +5,7 @@ import "testing"
 func TestVoteOptionValidationAllOk(t *testing.T) {
 
 	vote := VoteDto{Score1: "a", Score2: "b", Score3: "c"}
-	options := []Option {
+	options := []Option{
 		{Id: "a"},
 		{Id: "b"},
 		{Id: "c"},
@@ -18,7 +18,7 @@ func TestVoteOptionValidationAllOk(t *testing.T) {
 
 func TestVoteOptionValidationOption1IsMissing(t *testing.T) {
 	vote := VoteDto{Score1: "a", Score2: "b", Score3: "c"}
-	options := []Option {
+	options := []Option{
 		{Id: "b"},
 		{Id: "c"},
 	}
@@ -30,7 +30,7 @@ func TestVoteOptionValidationOption1IsMissing(t *testing.T) {
 
 func TestVoteOptionValidationOption2IsMissing(t *testing.T) {
 	vote := VoteDto{Score1: "a", Score2: "b", Score3: "c"}
-	options := []Option {
+	options := []Option{
 		{Id: "a"},
 		{Id: "c"},
 	}
@@ -42,7 +42,7 @@ func TestVoteOptionValidationOption2IsMissing(t *testing.T) {
 
 func TestVoteOptionValidationOption3IsMissing(t *testing.T) {
 	vote := VoteDto{Score1: "a", Score2: "b", Score3: "c"}
-	options := []Option {
+	options := []Option{
 		{Id: "a"},
 		{Id: "b"},
 	}
@@ -54,7 +54,7 @@ func TestVoteOptionValidationOption3IsMissing(t *testing.T) {
 
 func TestVoteOptionValidationOptionsAreEmpty(t *testing.T) {
 	vote := VoteDto{Score1: "", Score2: "", Score3: ""}
-	options := []Option {
+	options := []Option{
 		{Id: "a"},
 		{Id: "b"},
 		{Id: "c"},
@@ -67,7 +67,7 @@ func TestVoteOptionValidationOptionsAreEmpty(t *testing.T) {
 
 func TestVoteOptionValidationOptions1IsEmpty(t *testing.T) {
 	vote := VoteDto{Score1: "", Score2: "b", Score3: "c"}
-	options := []Option {
+	options := []Option{
 		{Id: "a"},
 		{Id: "c"},
 	}
@@ -79,11 +79,10 @@ func TestVoteOptionValidationOptions1IsEmpty(t *testing.T) {
 
 func TestVoteOptionValidationOptions1IsWrong(t *testing.T) {
 	vote := VoteDto{Score1: "d", Score2: "b", Score3: "c"}
-	options := []Option {
+	options := []Option{
 		{Id: "a"},
 		{Id: "b"},
 		{Id: "c"},
-
 	}
 
 	if allVoteOptionsInPoll(vote, options) {
@@ -92,11 +91,10 @@ func TestVoteOptionValidationOptions1IsWrong(t *testing.T) {
 }
 func TestVoteOptionValidationOptions2IsWrong(t *testing.T) {
 	vote := VoteDto{Score1: "a", Score2: "d", Score3: "c"}
-	options := []Option {
+	options := []Option{
 		{Id: "a"},
 		{Id: "b"},
 		{Id: "c"},
-
 	}
 
 	if allVoteOptionsInPoll(vote, options) {
@@ -105,11 +103,10 @@ func TestVoteOptionValidationOptions2IsWrong(t *testing.T) {
 }
 func TestVoteOptionValidationOptions3IsWrong(t *testing.T) {
 	vote := VoteDto{Score1: "a", Score2: "b", Score3: "d"}
-	options := []Option {
+	options := []Option{
 		{Id: "a"},
 		{Id: "b"},
 		{Id: "c"},
-
 	}
 
 	if allVoteOptionsInPoll(vote, options) {
@@ -142,5 +139,3 @@ func TestVotesAreUniqueOrEmpty_all_empty__True(t *testing.T) {
 		t.Error("Excpected true")
 	}
 }
-
-
