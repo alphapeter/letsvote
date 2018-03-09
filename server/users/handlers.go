@@ -8,14 +8,14 @@ import (
 )
 
 type updateUserAdminCommand struct {
-	isAdmin bool `json:"is_admin"`
+	IsAdmin bool `json:"is_admin"`
 }
 
 type userDto struct {
-	userId  string `json:"user_id"`
-	name    string `json:"name"`
-	email   string `json:"email"`
-	isAdmin bool   `json:"is_admin"`
+	Id      string `json:"id"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	IsAdmin bool   `json:"is_admin"`
 }
 
 func GetUsers(c *gin.Context) {
@@ -31,10 +31,10 @@ func GetUsers(c *gin.Context) {
 	var userDtos []userDto
 	for _, u := range users {
 		userDtos = append(userDtos, userDto{
-			name:    u.Name,
-			isAdmin: u.IsAdmin,
-			userId:  u.Id,
-			email:   u.Email,
+			Name:    u.Name,
+			IsAdmin: u.IsAdmin,
+			Id:      u.Id,
+			Email:   u.Email,
 		})
 	}
 	c.JSON(http.StatusOK, userDtos)
@@ -51,16 +51,16 @@ func SetAdminPermission(c *gin.Context) {
 	}
 
 	command := updateUserAdminCommand{}
-	userId := c.GetString("userId")
+	userId := c.Params.ByName("userId")
 	c.ShouldBindWith(&command, binding.JSON)
 
 	for _, u := range users {
 		if u.Id == userId {
-			if err := config.DB.Model(&u).UpdateColumn("is_admin", command.isAdmin).Error; err != nil {
+			if err := config.DB.Model(&u).UpdateColumn("is_admin", command.IsAdmin).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, "could not update user")
 				return
 			}
-			c.JSON(http.StatusOK, command.isAdmin)
+			c.JSON(http.StatusOK, command.IsAdmin)
 			return
 		}
 	}

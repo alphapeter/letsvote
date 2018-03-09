@@ -27,6 +27,10 @@ func main() {
 	router.GET("/static/js/app.js", webui.JsHandler)
 	router.GET("/static/css/app.css", webui.CssHandler)
 
+	router.GET("/admin", webui.AdminHtmlHandler)
+	router.GET("/static/js/admin.js", webui.AdminJsHandler)
+	router.GET("/static/css/admin.css", webui.AdminCssHandler)
+
 	router.GET("/api/activeusers", tap.GetConnectedUsers)
 
 	router.GET("/api/polls", polls.GetPolls)
