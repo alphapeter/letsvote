@@ -52,6 +52,11 @@
       <hr v-if="poll.options.length"/>
       <poll-option-add :poll="poll"></poll-option-add>
     </div>
+
+    <div class="voterInfo"
+         v-if="poll.status >=5">
+         #voters: {{voterCount}}
+    </div>
   </div>
 </template>
 
@@ -84,6 +89,9 @@
           start: faPlay,
           back: faStepBackward
         }
+      },
+      voterCount () {
+        return this.$store.state.voters[this.poll.id] && this.$store.state.voters[this.poll.id].length
       },
       options () {
         if (this.poll.status < 10) {
@@ -272,6 +280,12 @@
     background: #ffffff;
     right: 0;
     border: 1px solid red;
+  }
+  .voterInfo {
+    margin-top: 2em;
+    border-top: 1px solid #e9ebee;
+    text-align: right;
+    padding: 0.5em;
   }
 
   @media only screen

@@ -10,7 +10,8 @@ const state = {
   polls: [],
   activeUsers: [],
   me: {},
-  votes: {}
+  votes: {},
+  voters: {}
 }
 
 const getters = {}
@@ -29,6 +30,9 @@ export const store = new Vuex.Store({
     },
     vote (state, vote) {
       Vue.set(state.votes, vote.poll_id, vote)
+    },
+    setVoters (state, voters) {
+      state.voters = voters
     },
     'POLL_CREATED' (state, poll) {
       state.polls.push(poll)
@@ -75,6 +79,14 @@ export const store = new Vuex.Store({
     },
     'CONNECTED_USERS' (state, users) {
       state.activeUsers = users
+    },
+    'USER_VOTED' (state, info) {
+      if (state.voters[info.poll_id] === undefined) {
+        Vue.set(state.voters, info.poll_id, [info.user_id])
+      }
+      if (!state.voters[info.poll_id].some(user => user === info.user_id)) {
+        state.voters[info.poll_id].push(info.user_id)
+      }
     }
   },
   actions: {
@@ -98,6 +110,9 @@ export const store = new Vuex.Store({
             commit('INIT_VOTES', map)
           })
       }
+      API.get('/api/voters').then(voters => {
+        commit('setVoters', voters)
+      })
     },
     vote ({commit, state}, vote) {
       let votes = state.votes[vote.poll_id]
@@ -156,7 +171,8 @@ export const store = new Vuex.Store({
     'CONNECTED_USERS' ({commit}, users) {
       commit('CONNECTED_USERS', users)
     },
-    'USER_VOTED' (_, info) {
+    'USER_VOTED' ({commit}, info) {
+      commit('USER_VOTED', info)
       EventBus.$emit('USER_VOTED', info)
     }
   },

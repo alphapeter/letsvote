@@ -85,6 +85,20 @@ func HandleVote(c *gin.Context) {
 	}{Success: true})
 }
 
+func GetVoters(c *gin.Context) {
+	var votes []Vote
+	config.DB.Find(&votes)
+
+	votersByPoll := map[string][]string{}
+	for _, vote := range votes {
+		if _, exists := votersByPoll[vote.PollId]; !exists {
+			votersByPoll[vote.PollId] = []string{}
+		}
+		votersByPoll[vote.PollId] = append(votersByPoll[vote.PollId], vote.UserId)
+	}
+	c.JSON(http.StatusOK, votersByPoll)
+}
+
 func allVoteOptionsInPoll(v VoteDto, options []Option) bool {
 	return (len(v.Score1) == 0 || optionExists(options, v.Score1)) &&
 		(len(v.Score2) == 0 || optionExists(options, v.Score2)) &&
