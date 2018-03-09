@@ -22,6 +22,7 @@
         </td>
       </tr>
     </table>
+    <a href="/">Return</a>
   </div>
 
 </template>
