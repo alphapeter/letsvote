@@ -34,6 +34,9 @@
     created () {
       var that = this
       EventBus.$on('USER_VOTED', (info) => {
+        if (this.$store.state.me && info.user_id === this.$store.state.me.id) {
+          return
+        }
         if (info.user_id === this.user.id) {
           that.thumbs.push(Date.now())
           setTimeout(() => {
@@ -70,12 +73,12 @@
   }
 
   .fade-leave-active {
-    transition: opacity 2s;
+    transition: opacity 1.2s;
   }
-  .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  .fade-leave-to {
     opacity: 0;
-    transition: all 2s;
-    transform: scale(2) translate(5em);
+    transition: all 1.2s;
+    transform: scale(1.2) translate(5em);
     color: #0074D9;
   }
 
