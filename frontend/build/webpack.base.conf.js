@@ -9,7 +9,8 @@ function resolve (dir) {
 
 module.exports = {
   entry: {
-    app: ['es6-promise/auto', 'whatwg-fetch', './src/main.js']
+    app: ['es6-promise/auto', 'whatwg-fetch', './src/main.js'],
+    admin: ['es6-promise/auto', 'whatwg-fetch', './src/admin/admin.js']
   },
   output: {
     path: config.build.assetsRoot,

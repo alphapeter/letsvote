@@ -8,12 +8,12 @@ exports.run = function (goPackageName, variable, destinationFileName, sourceFile
   content = content.replace('`', '`+ "`" +`') // escape backticks
 
   fs.writeFileSync(destinationFileName,
-        'package ' + goPackageName + '\n\n' +
+    'package ' + goPackageName + '\n\n' +
         'var ' + variable + ' = []byte(`' +
         content + '`)',
     {
       encoding: 'utf8',
       flag: 'w'
     }
-    )
+  )
 }

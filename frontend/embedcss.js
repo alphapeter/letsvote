@@ -1,8 +1,19 @@
 var embed = require('./embedingo.js')
 
-var goPackageName = 'webui'
-var property = 'Css'
-var destinationFileName = '../server/webui/CssBundle.go'
-var sourceFileName = './dist/static/css/app.css'
+{
+  let goPackageName = 'webui'
+  let property = 'Css'
+  let destinationFileName = '../server/webui/CssBundle.go'
+  let sourceFileName = './dist/static/css/app.css'
 
-embed.run(goPackageName, property, destinationFileName, sourceFileName)
+  embed.run(goPackageName, property, destinationFileName, sourceFileName)
+}
+
+{
+  let goPackageName = 'webui'
+  let property = 'AdminCss'
+  let destinationFileName = '../server/webui/AdminCssBundle.go'
+  let sourceFileName = './dist/static/css/admin.css'
+
+  embed.run(goPackageName, property, destinationFileName, sourceFileName)
+}
