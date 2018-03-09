@@ -125,7 +125,7 @@
         return this.hasPermissionToEdit
       },
       hasPermissionToEdit () {
-        return this.$store.state.me && this.poll.created_by.id === this.$store.state.me.id
+        return (this.$store.state.me && this.poll.created_by.id === this.$store.state.me.id) || (this.$store.state.me && this.$store.state.me.is_admin)
       },
       isLoggedIn () {
         return this.$store.state.me

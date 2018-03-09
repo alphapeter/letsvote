@@ -55,7 +55,9 @@
       }
       API.get('/api/users')
         .then((users) => {
-          this.users = users
+          this.users = users.sort((a, b) => {
+            return a.name.localeCompare(b.name)
+          })
         })
     },
     destroyed () {

@@ -1,4 +1,4 @@
-<template>
+<template xmlns="http://www.w3.org/1999/html">
   <div class="option">
     <div class="name">
       <div class="position"
@@ -8,13 +8,15 @@
       </div>
 
       <img class="profilePicture" :src="profilePicture"/>
-      <span v-on:mouseenter="active = true"
-            v-on:mouseleave="active = false">
+      <span>
         {{option.name}}
-        <span v-if="active">edit</span>
       </span>
+
+      <button v-if="canDelete" class="deleteOptionButton" @click="deleteOption">
+        <font-awesome :icon="icons.trash"/>
+      </button>
     </div>
-    <input v-if="canDelete" class="deleteOptionButton" type="button" name="delete" value="delete option" @click="deleteOption"/>
+
     <div v-if="canVote" class="votes" >
       <div class="vote noselect" v-bind:class="{none: score == 0}" @click="vote(0)">0</div>
       <div class="vote noselect" v-bind:class="{third: score == 1, selected: score == 1 }" @click="vote(1)">1</div>
@@ -30,14 +32,24 @@
 <script>
   import { API } from '../api.js'
   import { gravatar } from '../gravatar.js'
+  import FontAwesome from '@fortawesome/vue-fontawesome'
+  import { faTrashAlt } from '@fortawesome/fontawesome-free-solid'
   export default {
     data () {
       return {
         active: false
       }
     },
+    components: {
+      FontAwesome
+    },
     props: ['option', 'poll', 'order', 'totalScore'],
     computed: {
+      icons () {
+        return {
+          trash: faTrashAlt
+        }
+      },
       printDate () {
         var date = new Date(this.option.created_at)
         return date.toLocaleDateString()
@@ -55,7 +67,7 @@
         return this.$store.state.me
       },
       canDelete () {
-        return this.createdByMe === this.me.id && !this.isActive
+        return ((this.createdByMe === this.me.id) || (this.$store.state.me && this.$store.state.me.is_admin)) && this.poll.status < 5
       },
       canVote () {
         return this.isActive && !this.createdByMe && this.isLoggedIn
@@ -128,8 +140,19 @@
 </script>
 
 <style scoped>
+
   .deleteOptionButton {
-    float: right;
+    display: none;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .name:hover .deleteOptionButton {
+    display: inline-block;
+
+  }
+  .deleteOptionButton:hover {
+    color: #7f7f7f;
   }
   .option {
     margin: 0.5em;

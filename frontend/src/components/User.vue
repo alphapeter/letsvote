@@ -1,6 +1,5 @@
 <template>
     <div class="userInfo">
-
         <img class="profilePicture"
              v-bind:class="{voting: voting}"
              :src="profilePicture"
