@@ -45,6 +45,9 @@ func main() {
 
 	authorized.GET("api/votes", polls.GetVotes)
 
+	authorized.GET("api/users", users.GetUsers)
+	authorized.PATCH("api/users/:userId", users.SetAdminPermission)
+
 	//router.GET("/auth/fakelogin/:fakeuser", auth.FakeLoginHandler)
 	router.GET("/auth/login/:provider", auth.LoginHandler)
 	router.GET("/auth/callback/:provider", auth.CallbackHandler)
