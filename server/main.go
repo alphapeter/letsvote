@@ -34,6 +34,8 @@ func main() {
 	router.GET("/api/activeusers", tap.GetConnectedUsers)
 
 	router.GET("/api/polls", polls.GetPolls)
+	router.GET("api/voters", polls.GetVoters)
+	
 	authorized.POST("/api/polls", polls.AddPoll)
 
 	authorized.DELETE("/api/polls/:pollId", polls.DeletePoll)
@@ -49,7 +51,7 @@ func main() {
 
 	authorized.GET("api/votes", polls.GetVotes)
 
-	authorized.GET("api/voters", polls.GetVoters)
+
 
 	authorized.GET("api/users", users.GetUsers)
 	authorized.PATCH("api/users/:userId", users.SetAdminPermission)
