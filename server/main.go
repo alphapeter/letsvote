@@ -35,7 +35,7 @@ func main() {
 
 	router.GET("/api/polls", polls.GetPolls)
 	router.GET("api/voters", polls.GetVoters)
-	
+
 	authorized.POST("/api/polls", polls.AddPoll)
 
 	authorized.DELETE("/api/polls/:pollId", polls.DeletePoll)

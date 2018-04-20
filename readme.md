@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/alphapeter/letsvote.svg?branch=master)](https://travis-ci.org/alphapeter/letsvote.svg?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/alphapeter/letsvote)](https://goreportcard.com/report/github.com/alphapeter/letsvote)
 # Lets vote
  
 # About

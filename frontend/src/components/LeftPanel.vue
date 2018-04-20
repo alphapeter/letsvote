@@ -8,7 +8,7 @@
               </div>
     </div>
     <div class="menu" >
-      <div v-if="isAdmin" class="menuitem">
+      <div v-if="isAdmin && !isSmallScreen" class="menuitem">
         <A href="/admin">Administrate users</A>
       </div>
 
@@ -49,6 +49,13 @@
       },
       isAdmin () {
         return this.$store.state.me && this.$store.state.me.is_admin
+      },
+      isSmallScreen () {
+        if (window.matchMedia('(min-width: 1023px)').matches) {
+          return false
+        } else {
+          return true
+        }
       }
     }
   }

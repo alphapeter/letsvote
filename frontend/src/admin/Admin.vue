@@ -47,9 +47,9 @@
     },
     created () {
       try {
-        var a = this.$cookie.get('lets_vote.authenticated')
-        var b = decodeURIComponent(a)
-        this.user = JSON.parse(b)
+        var cookie = this.$cookie.get('lets_vote.authenticated')
+        var u = decodeURIComponent(cookie)
+        this.user = JSON.parse(u)
       } catch (e) {
         this.user = null
         return
