@@ -66,7 +66,11 @@ import PollOption from './Option.vue'
 import PollOptionAdd from './OptionAdd.vue'
 import { gravatar } from '../gravatar.js'
 import FontAwesome from '@fortawesome/vue-fontawesome'
-import { faTrashAlt, faBars, faFlagCheckered, faPlay, faStepBackward } from '@fortawesome/fontawesome-free-solid'
+import faTrashAlt from '@fortawesome/fontawesome-free-solid/faTrashAlt'
+import faBars from '@fortawesome/fontawesome-free-solid/faBars'
+import faFlagCheckered from '@fortawesome/fontawesome-free-solid/faFlagCheckered'
+import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
+import faStepBackward from '@fortawesome/fontawesome-free-solid/faStepBackward'
 export default {
   props: ['poll'],
   components: {

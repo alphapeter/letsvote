@@ -33,7 +33,7 @@
 import { API } from '../api.js'
 import { gravatar } from '../gravatar.js'
 import FontAwesome from '@fortawesome/vue-fontawesome'
-import { faTrashAlt } from '@fortawesome/fontawesome-free-solid'
+import faTrashAlt from '@fortawesome/fontawesome-free-solid/faTrashAlt'
 export default {
   data () {
     return {

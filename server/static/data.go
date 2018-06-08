@@ -1,4 +1,3 @@
-package static 
+package static
 
-var Data = map[string][]byte {
-}
+var Data = map[string][]byte{}

@@ -4,7 +4,7 @@
 
 <script>
 import FontAwesome from '@fortawesome/vue-fontawesome'
-import {faThumbsUp} from '@fortawesome/fontawesome-free-solid'
+import faThumbsUp from '@fortawesome/fontawesome-free-solid/faThumbsUp'
 
 export default {
   components: {
