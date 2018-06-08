@@ -7,7 +7,7 @@
         {{option.position}}
       </div>
 
-      <img class="profilePicture" :src="profilePicture"/>
+      <img class="profilePicture" :title="createdBy" :src="profilePicture"/>
       <span>
         {{option.name}}
       </span>

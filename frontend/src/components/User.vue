@@ -3,7 +3,7 @@
         <img class="profilePicture"
              :src="profilePicture"
              :title="user.name"/>
-      <span class="username" @click="test()">{{user.name}}</span>
+      <span class="username">{{user.name}}</span>
       <transition-group name="fade" tag="p">
         <thumb v-for="t in thumbs" :key="t"/>
       </transition-group>
