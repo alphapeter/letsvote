@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import App from './App'
 import {store} from './store/store'
-require('./assets/css/font-icons.css')
 require('./assets/css/main.css')
 
 var VueCookie = require('vue-cookie')

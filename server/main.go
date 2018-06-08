@@ -7,9 +7,9 @@ import (
 	"github.com/alphapeter/letsvote/server/polls"
 	"github.com/alphapeter/letsvote/server/tap"
 	"github.com/alphapeter/letsvote/server/users"
-	"github.com/alphapeter/letsvote/server/webui"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"github.com/alphapeter/letsvote/server/static"
 )
 
 func main() {
@@ -23,18 +23,28 @@ func main() {
 	router := gin.Default()
 	authorized := router.Group("/", auth.CookieAuth())
 
-	router.GET("/", webui.HtmlHandler)
-	router.GET("/static/js/app.js", webui.JsHandler)
-	router.GET("/static/css/app.css", webui.CssHandler)
+	staticHandler := static.CreateHandler(static.Data, "index.html")
 
-	router.GET("/admin", webui.AdminHtmlHandler)
-	router.GET("/static/js/admin.js", webui.AdminJsHandler)
-	router.GET("/static/css/admin.css", webui.AdminCssHandler)
+	staticHtmlHandler := func(c *gin.Context) {
+		staticHandler.ServeHTTP(c.Writer, c.Request)
+	}
+
+	staticResourceHandler := func(c *gin.Context) {
+		c.Header("Etag", c.Request.RequestURI)
+		c.Header("Cache-Control", "max-age=14515200")
+		staticHandler.ServeHTTP(c.Writer, c.Request)
+	}
+
+	router.GET("/", staticHtmlHandler)
+	router.GET("/admin.html", staticHtmlHandler)
+
+	router.GET("/static/*filename", staticResourceHandler)
 
 	router.GET("/api/activeusers", tap.GetConnectedUsers)
 
 	router.GET("/api/polls", polls.GetPolls)
 	router.GET("api/voters", polls.GetVoters)
+
 
 	authorized.POST("/api/polls", polls.AddPoll)
 

@@ -9,7 +9,7 @@
     </div>
     <div class="menu" >
       <div v-if="isAdmin && !isSmallScreen" class="menuitem">
-        <A href="/admin">Administrate users</A>
+        <A href="/admin.html">Administrate users</A>
       </div>
 
       <div class="menuitem" v-if="isLoggedIn">
