@@ -5,11 +5,11 @@ import (
 	"github.com/alphapeter/letsvote/server/auth"
 	"github.com/alphapeter/letsvote/server/config"
 	"github.com/alphapeter/letsvote/server/polls"
+	"github.com/alphapeter/letsvote/server/static"
 	"github.com/alphapeter/letsvote/server/tap"
 	"github.com/alphapeter/letsvote/server/users"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"github.com/alphapeter/letsvote/server/static"
 )
 
 func main() {
@@ -44,7 +44,6 @@ func main() {
 
 	router.GET("/api/polls", polls.GetPolls)
 	router.GET("api/voters", polls.GetVoters)
-
 
 	authorized.POST("/api/polls", polls.AddPoll)
 
