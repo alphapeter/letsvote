@@ -46,7 +46,7 @@
     </div>
     <div v-if="false" class="description">{{poll.description}}</div>
 
-    <poll-option v-for="option in options" :option="option" :poll="poll" :key="option.id" :totalScore="totalScore"></poll-option>
+    <poll-option v-for="option in options" :option="option" :poll="poll" :key="option.id" :maxScore="maxScore"></poll-option>
 
     <div v-if="statusCreated && isLoggedIn">
       <hr v-if="poll.options.length"/>
@@ -121,8 +121,9 @@ export default {
       }
       return options
     },
-    totalScore () {
-      return this.poll.options.reduce((acc, current) => acc + current.score, 0)
+    maxScore () {
+      let number = Math.max(...this.poll.options.map(o => o.score))
+      return number
     },
     printDate () {
       var date = new Date(this.poll.created_at)

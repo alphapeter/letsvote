@@ -43,7 +43,7 @@ export default {
   components: {
     FontAwesome
   },
-  props: ['option', 'poll', 'order', 'totalScore'],
+  props: ['option', 'poll', 'order', 'maxScore'],
   computed: {
     icons () {
       return {
@@ -104,7 +104,7 @@ export default {
       return this.option.position === 3
     },
     meter () {
-      return this.option.score / this.totalScore * 100
+      return this.option.score / this.maxScore * 100
     }
   },
   methods: {
