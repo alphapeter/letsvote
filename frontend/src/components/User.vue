@@ -11,45 +11,45 @@
 </template>
 
 <script>
-  import { gravatar } from '../gravatar.js'
-  import {EventBus} from '../EventBus'
-  import Thumb from './Thumb.vue'
+import { gravatar } from '../gravatar.js'
+import {EventBus} from '../EventBus'
+import Thumb from './Thumb.vue'
 
-  export default {
-    data () {
-      return {
-        voting: false,
-        thumbs: []
-      }
-    },
-    props: ['user', 'picturesize'],
-    computed: {
-      profilePicture () {
-        return gravatar.profilePicture(this.user, 100)
-      }
-    },
-    components: {
-      Thumb
-    },
-    created () {
-      var that = this
-      EventBus.$on('USER_VOTED', (info) => {
-        if (this.$store.state.me && info.user_id === this.$store.state.me.id) {
-          return
-        }
-        if (info.user_id === this.user.id) {
-          that.thumbs.push(Date.now())
-          setTimeout(() => {
-            that.thumbs.shift()
-          }, 0)
-          that.voting = true
-          setTimeout(() => {
-            that.voting = false
-          }, 500)
-        }
-      })
+export default {
+  data () {
+    return {
+      voting: false,
+      thumbs: []
     }
+  },
+  props: ['user', 'picturesize'],
+  computed: {
+    profilePicture () {
+      return gravatar.profilePicture(this.user, 100)
+    }
+  },
+  components: {
+    Thumb
+  },
+  created () {
+    var that = this
+    EventBus.$on('USER_VOTED', (info) => {
+      if (this.$store.state.me && info.user_id === this.$store.state.me.id) {
+        return
+      }
+      if (info.user_id === this.user.id) {
+        that.thumbs.push(Date.now())
+        setTimeout(() => {
+          that.thumbs.shift()
+        }, 0)
+        that.voting = true
+        setTimeout(() => {
+          that.voting = false
+        }, 500)
+      }
+    })
   }
+}
 </script>
 
 <style scoped>

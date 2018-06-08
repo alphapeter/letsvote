@@ -1,4 +1,4 @@
-<template xmlns="http://www.w3.org/1999/html">
+<template>
   <div class="option">
     <div class="name">
       <div class="position"
@@ -30,113 +30,113 @@
 </template>
 
 <script>
-  import { API } from '../api.js'
-  import { gravatar } from '../gravatar.js'
-  import FontAwesome from '@fortawesome/vue-fontawesome'
-  import { faTrashAlt } from '@fortawesome/fontawesome-free-solid'
-  export default {
-    data () {
+import { API } from '../api.js'
+import { gravatar } from '../gravatar.js'
+import FontAwesome from '@fortawesome/vue-fontawesome'
+import { faTrashAlt } from '@fortawesome/fontawesome-free-solid'
+export default {
+  data () {
+    return {
+      active: false
+    }
+  },
+  components: {
+    FontAwesome
+  },
+  props: ['option', 'poll', 'order', 'totalScore'],
+  computed: {
+    icons () {
       return {
-        active: false
+        trash: faTrashAlt
       }
     },
-    components: {
-      FontAwesome
+    printDate () {
+      var date = new Date(this.option.created_at)
+      return date.toLocaleDateString()
     },
-    props: ['option', 'poll', 'order', 'totalScore'],
-    computed: {
-      icons () {
-        return {
-          trash: faTrashAlt
-        }
-      },
-      printDate () {
-        var date = new Date(this.option.created_at)
-        return date.toLocaleDateString()
-      },
-      createdBy () {
-        return 'created by ' + this.option.created_by.name
-      },
-      profilePicture () {
-        return gravatar.profilePicture(this.option.created_by)
-      },
-      me () {
-        return this.$store.state.me ? this.$store.state.me : {}
-      },
-      isLoggedIn () {
-        return this.$store.state.me
-      },
-      canDelete () {
-        return ((this.createdByMe === this.me.id) || (this.$store.state.me && this.$store.state.me.is_admin)) && this.poll.status < 5
-      },
-      canVote () {
-        return this.isActive && !this.createdByMe && this.isLoggedIn
-      },
-      createdByMe () {
-        return this.me.id === this.option.created_by.id
-      },
-      isActive () {
-        return this.poll.status === 5
-      },
-      score () {
-        var votes = this.$store.state.votes
-        if (!(votes && votes[this.poll.id])) {
-          return 0
-        }
-        if (votes[this.poll.id].score_1 === this.option.id) {
-          return 1
-        }
-        if (votes[this.poll.id].score_2 === this.option.id) {
-          return 2
-        }
-        if (votes[this.poll.id].score_3 === this.option.id) {
-          return 3
-        }
+    createdBy () {
+      return 'created by ' + this.option.created_by.name
+    },
+    profilePicture () {
+      return gravatar.profilePicture(this.option.created_by)
+    },
+    me () {
+      return this.$store.state.me ? this.$store.state.me : {}
+    },
+    isLoggedIn () {
+      return this.$store.state.me
+    },
+    canDelete () {
+      return ((this.createdByMe === this.me.id) || (this.$store.state.me && this.$store.state.me.is_admin)) && this.poll.status < 5
+    },
+    canVote () {
+      return this.isActive && !this.createdByMe && this.isLoggedIn
+    },
+    createdByMe () {
+      return this.me.id === this.option.created_by.id
+    },
+    isActive () {
+      return this.poll.status === 5
+    },
+    score () {
+      var votes = this.$store.state.votes
+      if (!(votes && votes[this.poll.id])) {
         return 0
-      },
-      isWinner () {
-        return this.option.position === 1
-      },
-      isSecond () {
-        return this.option.position === 2
-      },
-      isThird () {
-        return this.option.position === 3
-      },
-      meter () {
-        return this.option.score / this.totalScore * 100
       }
+      if (votes[this.poll.id].score_1 === this.option.id) {
+        return 1
+      }
+      if (votes[this.poll.id].score_2 === this.option.id) {
+        return 2
+      }
+      if (votes[this.poll.id].score_3 === this.option.id) {
+        return 3
+      }
+      return 0
     },
-    methods: {
-      deleteOption () {
-        var store = this.$store
-        API.delete('api/polls/' + this.option.pollId + '/options/' + this.option.id)
-          .then((response) => {
-            if (!response.success) {
-              store.commit('error', {
-                message: 'Could not be deleted',
-                code: 500
-              })
-            }
-          }).catch((reason) => {
+    isWinner () {
+      return this.option.position === 1
+    },
+    isSecond () {
+      return this.option.position === 2
+    },
+    isThird () {
+      return this.option.position === 3
+    },
+    meter () {
+      return this.option.score / this.totalScore * 100
+    }
+  },
+  methods: {
+    deleteOption () {
+      var store = this.$store
+      API.delete('api/polls/' + this.option.pollId + '/options/' + this.option.id)
+        .then((response) => {
+          if (!response.success) {
             store.commit('error', {
               message: 'Could not be deleted',
-              code: reason.code
+              code: 500
             })
+          }
+        }).catch((reason) => {
+          store.commit('error', {
+            message: 'Could not be deleted',
+            code: reason.code
           })
-      },
-      vote (count) {
-        if (this.score === count) {
-          return
-        }
-        this.$store.dispatch('vote', {
-          score: count,
-          option_id: this.option.id,
-          poll_id: this.poll.id
         })
+    },
+    vote (count) {
+      if (this.score === count) {
+        return
       }
+      this.$store.dispatch('vote', {
+        score: count,
+        option_id: this.option.id,
+        poll_id: this.poll.id
+      })
     }
   }
+}
 </script>
 
 <style scoped>

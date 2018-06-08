@@ -61,159 +61,160 @@
 </template>
 
 <script>
-  import { API } from '../api.js'
-  import PollOption from './Option.vue'
-  import PollOptionAdd from './OptionAdd.vue'
-  import { gravatar } from '../gravatar.js'
-  import FontAwesome from '@fortawesome/vue-fontawesome'
-  import { faTrashAlt, faBars, faFlagCheckered, faPlay, faStepBackward } from '@fortawesome/fontawesome-free-solid'
-  export default {
-    props: ['poll'],
-    components: {
-      PollOption,
-      PollOptionAdd,
-      FontAwesome
-    },
-    data () {
+import { API } from '../api.js'
+import PollOption from './Option.vue'
+import PollOptionAdd from './OptionAdd.vue'
+import { gravatar } from '../gravatar.js'
+import FontAwesome from '@fortawesome/vue-fontawesome'
+import { faTrashAlt, faBars, faFlagCheckered, faPlay, faStepBackward } from '@fortawesome/fontawesome-free-solid'
+export default {
+  props: ['poll'],
+  components: {
+    PollOption,
+    PollOptionAdd,
+    FontAwesome
+  },
+  data () {
+    return {
+      showMenu: false,
+      showConfirmDelete: false
+    }
+  },
+  computed: {
+    icons () {
       return {
-        showMenu: false,
-        showConfirmDelete: false
+        trash: faTrashAlt,
+        bars: faBars,
+        finish: faFlagCheckered,
+        start: faPlay,
+        back: faStepBackward
       }
     },
-    computed: {
-      icons () {
-        return {
-          trash: faTrashAlt,
-          bars: faBars,
-          finish: faFlagCheckered,
-          start: faPlay,
-          back: faStepBackward
-        }
-      },
-      voterCount () {
-        return this.$store.state.voters[this.poll.id] && this.$store.state.voters[this.poll.id].length
-      },
-      options () {
-        if (this.poll.status < 10) {
-          this.poll.options.sort((a, b) => {
-            if (a.created_at < b.created_at) {
-              return -1
-            }
-          })
-        } else {
-          this.poll.options.sort((a, b) => {
-            return b.score - a.score
-          })
-          var position = 1
-          for (var i = 0; i < this.poll.options.length; i++) {
-            var option = this.poll.options[i]
-            this.$set(option, 'position', position)
-            option.position = position
-            if (i + 1 < this.poll.options.length && this.poll.options[i + 1].score !== option.score) {
-              position++
-            }
+    voterCount () {
+      return this.$store.state.voters[this.poll.id] && this.$store.state.voters[this.poll.id].length
+    },
+    options () {
+      var options = this.poll.options
+      if (this.poll.status < 10) {
+        options.sort((a, b) => {
+          if (a.created_at < b.created_at) {
+            return -1
+          }
+        })
+      } else {
+        options.sort((a, b) => {
+          return b.score - a.score
+        })
+        var position = 1
+        for (var i = 0; i < this.poll.options.length; i++) {
+          var option = this.poll.options[i]
+          this.$set(option, 'position', position)
+          option.position = position
+          if (i + 1 < this.poll.options.length && this.poll.options[i + 1].score !== option.score) {
+            position++
           }
         }
-        return this.poll.options
-      },
-      totalScore () {
-        return this.poll.options.reduce((acc, current) => acc + current.score, 0)
-      },
-      printDate () {
-        var date = new Date(this.poll.created_at)
-        return date.toLocaleDateString()
-      },
-      createdBy () {
-        return 'created by ' + this.poll.created_by.name
-      },
-      profilePicture () {
-        gravatar.profilePicture(this.poll.created_by)
-      },
-      canDelete () {
-        return this.hasPermissionToEdit
-      },
-      hasPermissionToEdit () {
-        return (this.$store.state.me && this.poll.created_by.id === this.$store.state.me.id) || (this.$store.state.me && this.$store.state.me.is_admin)
-      },
-      isLoggedIn () {
-        return this.$store.state.me
-      },
-      statusCreated () {
-        return this.poll.status === 0
-      },
-      statusActive () {
-        return this.poll.status === 5
-      },
-      status () {
-        let status = this.poll.status
-        if (status < 5) {
-          return 'Open'
-        }
-        if (status < 8) {
-          return 'Voting'
-        }
-        if (status < 10) {
-          return 'Counting'
-        }
-        return 'Ended'
+      }
+      return options
+    },
+    totalScore () {
+      return this.poll.options.reduce((acc, current) => acc + current.score, 0)
+    },
+    printDate () {
+      var date = new Date(this.poll.created_at)
+      return date.toLocaleDateString()
+    },
+    createdBy () {
+      return 'created by ' + this.poll.created_by.name
+    },
+    profilePicture () {
+      return gravatar.profilePicture(this.poll.created_by)
+    },
+    canDelete () {
+      return this.hasPermissionToEdit
+    },
+    hasPermissionToEdit () {
+      return (this.$store.state.me && this.poll.created_by.id === this.$store.state.me.id) || (this.$store.state.me && this.$store.state.me.is_admin)
+    },
+    isLoggedIn () {
+      return this.$store.state.me
+    },
+    statusCreated () {
+      return this.poll.status === 0
+    },
+    statusActive () {
+      return this.poll.status === 5
+    },
+    status () {
+      let status = this.poll.status
+      if (status < 5) {
+        return 'Open'
+      }
+      if (status < 8) {
+        return 'Voting'
+      }
+      if (status < 10) {
+        return 'Counting'
+      }
+      return 'Ended'
+    }
+  },
+  methods: {
+    confirmDelete () {
+      this.showConfirmDelete = true
+    },
+    deletePoll () {
+      var store = this.$store
+      API.delete('api/polls/' + this.poll.id)
+        .then((response) => {
+          if (!response.success) {
+            store.commit('error', {
+              message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
+              code: 500
+            })
+          }
+        }).catch((reason) => {
+          store.commit('error', {
+            message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
+            code: reason.code
+          })
+        })
+    },
+    activatePoll () {
+      this.changeStatus('5')
+    },
+    endPoll () {
+      this.changeStatus('8')
+    },
+    backStatus () {
+      if (this.poll.status <= 5) {
+        this.changeStatus('0')
+      } else if (this.poll.status <= 10) {
+        this.changeStatus('5')
+      } else {
+        this.changeStatus('5')
       }
     },
-    methods: {
-      confirmDelete () {
-        this.showConfirmDelete = true
-      },
-      deletePoll () {
-        var store = this.$store
-        API.delete('api/polls/' + this.poll.id)
-          .then((response) => {
-            if (!response.success) {
-              store.commit('error', {
-                message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
-                code: 500
-              })
-            }
-          }).catch((reason) => {
+    changeStatus (code) {
+      var store = this.$store
+      this.showMenu = false
+      API.patch('api/polls/' + this.poll.id, { status: code })
+        .then((response) => {
+          if (!response.success) {
             store.commit('error', {
-              message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
-              code: reason.code
+              message: response.reason || 'unexpected error :('
             })
+          }
+        }).catch((reason) => {
+          console.log(reason)
+          store.commit('error', {
+            message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
+            code: reason.code
           })
-      },
-      activatePoll () {
-        this.changeStatus('5')
-      },
-      endPoll () {
-        this.changeStatus('8')
-      },
-      backStatus () {
-        if (this.poll.status <= 5) {
-          this.changeStatus('0')
-        } else if (this.poll.status <= 10) {
-          this.changeStatus('5')
-        } else {
-          this.changeStatus('5')
-        }
-      },
-      changeStatus (code) {
-        var store = this.$store
-        this.showMenu = false
-        API.patch('api/polls/' + this.poll.id, { status: code })
-          .then((response) => {
-            if (!response.success) {
-              store.commit('error', {
-                message: response.reason || 'unexpected error :('
-              })
-            }
-          }).catch((reason) => {
-            console.log(reason)
-            store.commit('error', {
-              message: 'Ooops, something went terribly wrong. Bad code monkey! We could not add your poll :(',
-              code: reason.code
-            })
-          })
-      }
+        })
     }
   }
+}
 </script>
 
 <style scoped>

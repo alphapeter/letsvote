@@ -5,13 +5,13 @@
 </template>
 
 <script>
-  import WaitDialog from './WaitDialog.vue'
-  import ErrorDialog from './ErrorDialog.vue'
+import WaitDialog from './WaitDialog.vue'
+import ErrorDialog from './ErrorDialog.vue'
 
-  export default {
-    components: {
-      WaitDialog,
-      ErrorDialog
-    }
+export default {
+  components: {
+    WaitDialog,
+    ErrorDialog
   }
+}
 </script>

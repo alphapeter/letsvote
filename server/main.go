@@ -51,8 +51,6 @@ func main() {
 
 	authorized.GET("api/votes", polls.GetVotes)
 
-
-
 	authorized.GET("api/users", users.GetUsers)
 	authorized.PATCH("api/users/:userId", users.SetAdminPermission)
 

@@ -5,30 +5,30 @@
 </template>
 
 <script>
-  export default {
-    methods: {
-      login () {
-        window.location.href = '/auth/login/office365'
+export default {
+  methods: {
+    login () {
+      window.location.href = '/auth/login/office365'
+    }
+  },
+  computed: {
+    user () {
+      try {
+        var a = this.$cookie.get('lets_vote.authenticated')
+        var user = JSON.parse(a)
+        return user
+      } catch (e) {
+        return false
       }
     },
-    computed: {
-      user () {
-        try {
-          var a = this.$cookie.get('lets_vote.authenticated')
-          var user = JSON.parse(a)
-          return user
-        } catch (e) {
-          return false
-        }
-      },
-      profilePicture () {
-        return 'https://www.gravatar.com/avatar/' + this.user.gravatar + '?s=50'
-      },
-      isLoggedIn () {
-        return this.user
-      }
+    profilePicture () {
+      return 'https://www.gravatar.com/avatar/' + this.user.gravatar + '?s=50'
+    },
+    isLoggedIn () {
+      return this.user
     }
   }
+}
 </script>
 
 <style scoped>

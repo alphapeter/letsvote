@@ -7,12 +7,12 @@
 </template>
 
 <script>
-  import Modal from './Modal.vue'
-  export default {
-    components: {
-      Modal
-    }
+import Modal from './Modal.vue'
+export default {
+  components: {
+    Modal
   }
+}
 </script>
 
 <style scoped>

@@ -6,28 +6,28 @@
 </template>
 
 <script>
-  import Poll from './Poll.vue'
-  import PollAdd from './PollAdd'
-  export default {
-    components: {
-      Poll,
-      PollAdd
+import Poll from './Poll.vue'
+import PollAdd from './PollAdd'
+export default {
+  components: {
+    Poll,
+    PollAdd
+  },
+  computed: {
+    polls () {
+      let polls = this.$store.state.polls
+      return polls.sort((a, b) => {
+        if (a.created_at > b.created_at) {
+          return -1
+        }
+        return 1
+      })
     },
-    computed: {
-      polls () {
-        let polls = this.$store.state.polls
-        return polls.sort((a, b) => {
-          if (a.created_at > b.created_at) {
-            return -1
-          }
-          return 1
-        })
-      },
-      isLoggedIn () {
-        return this.$store.state.me
-      }
+    isLoggedIn () {
+      return this.$store.state.me
     }
   }
+}
 </script>
 
 <style scoped>

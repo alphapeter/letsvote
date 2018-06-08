@@ -9,24 +9,24 @@
 </template>
 
 <script>
-  import User from './User.vue'
+import User from './User.vue'
 
-  export default {
-    components: {
-      User
-    },
-    computed: {
-      activeUsers () {
-        return this.$store.state.activeUsers.map(user => {
-          return {
-            name: user.id === 'anonymous' ? user.id : user.name,
-            gravatar: user.gravatar,
-            id: user.id
-          }
-        })
-      }
+export default {
+  components: {
+    User
+  },
+  computed: {
+    activeUsers () {
+      return this.$store.state.activeUsers.map(user => {
+        return {
+          name: user.id === 'anonymous' ? user.id : user.name,
+          gravatar: user.gravatar,
+          id: user.id
+        }
+      })
     }
   }
+}
 </script>
 
 <style scoped>
@@ -53,7 +53,5 @@
       display: none;
     }
   }
-
-
 
 </style>

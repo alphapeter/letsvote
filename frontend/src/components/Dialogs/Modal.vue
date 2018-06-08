@@ -14,38 +14,38 @@
 </template>
 
 <script>
-  export default {
-    data () {
-      return {
-        eventListener: null
-      }
-    },
-    props: ['disableButtons'],
-    methods: {
-      cancel () {
-        this.$store.commit('commandCanceled')
-      }
-    },
-    created () {
-      if (this.disableButtons) {
-        return
-      }
-
-      let vm = this
-      this.eventListener = (e) => {
-        if (e.key === 'Escape') {
-          vm.cancel()
-        }
-      }
-      window.addEventListener('keyup', this.eventListener)
-    },
-    destroyed () {
-      if (this.disableButtons) {
-        return
-      }
-      window.removeEventListener('keyup', this.eventListener)
+export default {
+  data () {
+    return {
+      eventListener: null
     }
+  },
+  props: ['disableButtons'],
+  methods: {
+    cancel () {
+      this.$store.commit('commandCanceled')
+    }
+  },
+  created () {
+    if (this.disableButtons) {
+      return
+    }
+
+    let vm = this
+    this.eventListener = (e) => {
+      if (e.key === 'Escape') {
+        vm.cancel()
+      }
+    }
+    window.addEventListener('keyup', this.eventListener)
+  },
+  destroyed () {
+    if (this.disableButtons) {
+      return
+    }
+    window.removeEventListener('keyup', this.eventListener)
   }
+}
 </script>
 
 <style scoped>

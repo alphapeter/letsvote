@@ -24,41 +24,40 @@
         </a>
       </div>
 
-
     </div>
   </div>
 </template>
 
 <script>
-  import User from './User.vue'
-  export default {
-    components: {
-      User
+import User from './User.vue'
+export default {
+  components: {
+    User
+  },
+  methods: {
+    login () {
+      window.location.href = '/auth/login/office365'
+    }
+  },
+  computed: {
+    user () {
+      return this.$store.state.me
     },
-    methods: {
-      login () {
-        window.location.href = '/auth/login/office365'
-      }
+    isLoggedIn () {
+      return this.user
     },
-    computed: {
-      user () {
-        return this.$store.state.me
-      },
-      isLoggedIn () {
-        return this.user
-      },
-      isAdmin () {
-        return this.$store.state.me && this.$store.state.me.is_admin
-      },
-      isSmallScreen () {
-        if (window.matchMedia('(min-width: 1023px)').matches) {
-          return false
-        } else {
-          return true
-        }
+    isAdmin () {
+      return this.$store.state.me && this.$store.state.me.is_admin
+    },
+    isSmallScreen () {
+      if (window.matchMedia('(min-width: 1023px)').matches) {
+        return false
+      } else {
+        return true
       }
     }
   }
+}
 </script>
 
 <style scoped>
