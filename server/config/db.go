@@ -8,6 +8,6 @@ import (
 var DB *gorm.DB
 
 func InitDb() {
-	DB, _ = gorm.Open("sqlite3", "test.db")
+	DB, _ = gorm.Open("sqlite3", "data.db")
 	DB.Exec("PRAGMA foreign_keys = ON")
 }
