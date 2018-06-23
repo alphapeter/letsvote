@@ -214,7 +214,7 @@ export default {
   .meter {
     height: 100%;
     float: left;
-    background-color: red;
+    background-color: #87cefa;
     text-align: right;
   }
   .profilePicture {
