@@ -61,6 +61,7 @@ export default {
     margin-bottom: 1em;
     border: 1px solid #e9e8e8;
     border-radius: 0.2em;
+    box-shadow: 0px 8px 10px 0px rgba(0,0,0,0.15)
   }
   .poll.create input[type=text], textarea {
     width: calc(100% - 1em);

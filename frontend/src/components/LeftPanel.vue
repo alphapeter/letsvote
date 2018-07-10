@@ -90,8 +90,9 @@ export default {
   .leftpanel {
     top: 5em;
     left: 0;
-    width: 10em;
+    width: 9em;
     position: fixed;
+    box-shadow: 0px 8px 10px 0px rgba(0,0,0,0.15)
   }
   .center {
     text-align: center;

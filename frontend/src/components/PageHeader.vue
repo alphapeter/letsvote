@@ -37,9 +37,11 @@ export default {
     top: 0;
     width: 100%;
     text-align: center;
-    background-color: lightskyblue;
+    background-color: #607D8B;
     height: 4em;
     z-index: 10;
+    box-shadow: 0px 12px 12px 0px rgba(0,0,0,0.15);
+    color: #fff;
   }
   h1 {
     margin: 0.4em;

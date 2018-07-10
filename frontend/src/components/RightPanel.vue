@@ -45,6 +45,7 @@ export default {
   .content {
     margin-right: 0.4em;
     margin-left: 0.4em;
+    box-shadow: 0px 8px 10px 0px rgba(0,0,0,0.15)
   }
 
   @media only screen
