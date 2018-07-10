@@ -157,70 +157,102 @@ export default {
   .option {
     margin: 0.5em;
     position: relative;
+    display: flex;
+    justify-content: space-between;
   }
 
   .name {
     max-width: 69%;
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 0.2em;
   }
   .votes {
-    position: absolute;
-    right: 0;
-    top: 0.1em;
-  }
+    display: inline-block;
+    vertical-align: middle;
+   }
+
   .vote {
-    background-color: lightblue;
+    background-color: #448AFF;
+    color: #fff;
     padding: 0.2em;
-    margin-left: 0.4em;
-    float: left;
+    margin-left: 0.1em;
     cursor: pointer;
+    display: inline-block;
+    border: 1px solid transparent;
+    box-shadow: 2px 4px 4px 0px rgba(0,0,0,0.15)
+  }
+  .vote:hover {
+    color: #212121;
   }
   .vote.selected {
     font-weight: bolder;
   }
   .position {
     position: relative;
-    width: 1.2em;
-    height: 1.2em;
+    width: 1em;
+    height: 1em;
     font-size: 100%;
     border-radius: 0.6em;
     text-align: center;
-    float: left;
     margin-right: 0.5em;
     vertical-align: middle;
     display: inline-block;
+    padding: 0.1em;
   }
   .winner {
-    background-color: gold;
+    background: radial-gradient(ellipse farthest-corner at right bottom, #FEDB37 0%, #FDB931 8%, #9f7928 30%, #8A6E2F 40%, transparent 80%),
+    radial-gradient(ellipse farthest-corner at left top, #FFFFFF 0%, #FFFFAC 8%, #D1B464 25%, #5d4a1f 62.5%, #5d4a1f 100%);
+    border: 1px solid #8A6E2F;
+    color: #5D4A1F;
+    text-shadow: 0px 1px 0px rgba(255,255,255,.3), 0px -1px 0px rgba(0,0,0,.7);
+
   }
   .second {
-    background-color: silver;
+    background: radial-gradient(ellipse farthest-corner at right bottom, #eeeeee 0%, #ededed 8%, #dddddd 30%, #cbcbcb 40%, transparent 80%),
+    radial-gradient(ellipse farthest-corner at left top, #FFFFFF 0%, #fffbf4 8%, #eeeeee 25%, #a1a1a1 62.5%, #efefef 100%);
+    border: 1px solid #a1a1a1;
+    color: #a1a1a1;
+    text-shadow: 0px 1px 0px rgba(255,255,255,.3), 0px -1px 0px rgba(0,0,0,.7);
   }
+
   .third {
-    background-color: #cd7f32;
+    background: radial-gradient(ellipse farthest-corner at right bottom, #ff9036 0%, #d4702b 8%, #a14521 30%, #a14521 40%, transparent 80%),
+    radial-gradient(ellipse farthest-corner at left top, #fff6f2 0%, #ffdeca 8%, #ca7345 25%, #6e2a1e 62.5%, #ca7345 100%);
+    border: 1px solid #6E2A1E;
+    color: #6E2A1E;
+    text-shadow: 0px 1px 0px rgba(255,255,255,.3), 0px -1px 0px rgba(0,0,0,.7);
   }
   .none {
     background-color: black;
+    border: 1px solid #888888;
+    text-shadow: 0px 1px 0px rgba(255,255,255,.3), 0px -1px 0px rgba(0,0,0,.7);
+    color: #888888;
   }
 
   .scoring {
     height: 1em;
     width: 10em;
-    background-color: #e9ebee;
+    background-color: #CFD8DC;
     position: absolute;
     right: 0;
     top: 0.2em;
     max-width: 30%;
+    border-radius: 0.5em;
+    overflow: hidden;
+    margin-top: 0.1em;
   }
   .meter {
     height: 100%;
-    float: left;
-    background-color: #87cefa;
+    background-color: #455A64;
     text-align: right;
+    color: #fff;
   }
   .profilePicture {
     width: 1em;
     height: 1em;
     vertical-align: middle;
+    border-radius: 0.5em;
   }
 
   @media only screen

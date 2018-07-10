@@ -11,6 +11,22 @@
           <font-awesome :icon="icons.bars"/>
         </span>
         <div class="menu" v-if="showMenu">
+          <span title="Back status"
+                          v-if="poll.status >= 5"
+                          @click="backStatus">
+            <font-awesome :icon="icons.back"/>
+          </span>
+          <span title="Start poll"
+                v-if="poll.status < 5"
+                @click="activatePoll">
+            <font-awesome :icon="icons.start"/>
+          </span>
+          <span title="End poll"
+                v-else-if="poll.status < 8"
+                @click="endPoll">
+            <font-awesome :icon="icons.finish"/>
+          </span>
+
           <span title="delete poll"
                 class="deletePoll"
                 v-if="canDelete"
@@ -25,21 +41,6 @@
               <span @click="deletePoll">Yes</span>
             </div>
           </div>
-          <span title="Start poll"
-                v-if="poll.status < 5"
-                @click="activatePoll">
-            <font-awesome :icon="icons.start"/>
-          </span>
-          <span title="End poll"
-                v-else-if="poll.status < 8"
-                @click="endPoll">
-            <font-awesome :icon="icons.finish"/>
-          </span>
-          <span title="Back status"
-                v-if="poll.status >= 5"
-                @click="backStatus">
-            <font-awesome :icon="icons.back"/>
-          </span>
 
         </div>
       </div>
@@ -243,43 +244,64 @@ export default {
     position: relative;
     border: 1px solid #e9e8e8;
     border-radius: 5px;
+    box-shadow: 0px 8px 10px 0px rgba(0,0,0,0.15)
   }
   .editPoll {
     position: absolute;
     top: 2em;
     right: 0.5em;
+    background-color: #448AFF;
+    padding: .4em;
+    border-radius: 1em;
+    height: 1.2em;
+    width: 1.2em;
+    color: #FFFFFF;
+    text-align: center;
+    box-shadow: 2px 4px 4px 0px rgba(0,0,0,0.15)
   }
 
   .editPoll span {
     cursor: pointer;
   }
   .editPoll span:hover {
-    color: #777;
+    color: #212121;
   }
   .status {
-    font-size: 0.5em;
+    font-size: 0.8em;
     height: 1em;
     margin-right: 0.5em;
     border-radius: 0.2em;
-    background-color: lightblue;
+    background-color: #CFD8DC;
+    color: #212121;
   }
   .header {
     width: 100%;
-    border-bottom: 1px solid #e9ebee;
+    border-bottom: 1px solid #BDBDBD;
   }
   .menu {
     position: absolute;
-    right: 0.5em;
+    right: 0em;
+    top: 2em;
     background: #fff;
-    border: 1px solid gray;
-    width: 6em;
+    border: 1px solid #BDBDBD;
     z-index: 2;
+    color: #757575;
+    box-shadow: 2px 4px 4px 0px rgba(0,0,0,0.15)
   }
 
   .menu > span {
-    float: right;
     padding: 0.4em;
+    margin: 2px;
+    background-color: #448AFF;
+    color: #fff;
+    border-radius: 0.3em;
+    display: inline-block;
   }
+
+  .menu > span:hover {
+    color: #212121;
+  }
+
   .confirmDelete {
     position: absolute;
     top: 2em;
@@ -289,7 +311,7 @@ export default {
   }
   .voterInfo {
     margin-top: 2em;
-    border-top: 1px solid #e9ebee;
+    border-top: 1px solid #BDBDBD;
     text-align: right;
     padding: 0.5em;
   }
