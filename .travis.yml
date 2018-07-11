@@ -16,6 +16,7 @@ before_install:
 
 script:
   - npm run build:all
+  - ./create_snap.sh
 
 before_deploy:
   - npm run create:artifacts
@@ -29,6 +30,6 @@ deploy:
     on:
       tags: true
   - provider: snap
-    snap: letsvote
+    snap: letsvote_0.9_amd64.snap
     channel: edge
     skip_cleanup: true

@@ -1,9 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 # Migrate config if necessary
-if [ ! -d $SNAP_DATA/settings.json ]; then
+if [ ! -f $SNAP_DATA/settings.json ]; then
     cp $SNAP/conf/settings.json $SNAP_DATA/settings.json
 fi
 cd $SNAP_DATA
 $SNAP/bin/letsvote
-
