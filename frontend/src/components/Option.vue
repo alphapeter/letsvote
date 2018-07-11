@@ -24,7 +24,7 @@
       <div class="vote noselect" v-bind:class="{winner: score == 3, selected: score == 3}" @click="vote(3)">3</div>
     </div>
     <div v-if="poll.status >= 10" class="scoring">
-      <div class="meter" v-bind:style="{ width: meter + '%' }">{{option.score}}</div>
+      <div class="meter" v-bind:style="{ width: meter + '%' }"><span class="score">{{option.score}}</span></div>
     </div>
   </div>
 </template>
@@ -245,8 +245,13 @@ export default {
   .meter {
     height: 100%;
     background-color: #455A64;
-    text-align: right;
     color: #fff;
+  }
+  .meter .score {
+    margin-right: 0.2em;
+    height: 100%;
+    float: right;
+    text-align: right;
   }
   .profilePicture {
     width: 1em;

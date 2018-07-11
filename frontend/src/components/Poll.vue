@@ -243,7 +243,6 @@ export default {
     margin-bottom: 20px;
     position: relative;
     border: 1px solid #e9e8e8;
-    border-radius: 5px;
     box-shadow: 0px 8px 10px 0px rgba(0,0,0,0.15)
   }
   .editPoll {
@@ -286,16 +285,19 @@ export default {
     border: 1px solid #BDBDBD;
     z-index: 2;
     color: #757575;
-    box-shadow: 2px 4px 4px 0px rgba(0,0,0,0.15)
+    box-shadow: 2px 4px 4px 0px rgba(0,0,0,0.15);
+    display: flex;
+    border-radius: 0.2em;
   }
 
   .menu > span {
     padding: 0.4em;
-    margin: 2px;
+    margin: 0.5em;
     background-color: #448AFF;
     color: #fff;
     border-radius: 0.3em;
     display: inline-block;
+    box-shadow: 2px 4px 4px 0px rgba(0,0,0,0.15);
   }
 
   .menu > span:hover {
