@@ -21,10 +21,14 @@ before_deploy:
   - npm run create:artifacts
 
 deploy:
-  provider: releases
-  skip_cleanup: true
-  file_glob: true
-  api_key: $GITHUB_DEPLOY_KEY
-  file: build/artifacts/*
-  on:
-    tags: true
+  - provider: releases
+    skip_cleanup: true
+    file_glob: true
+    api_key: $GITHUB_DEPLOY_KEY
+    file: build/artifacts/*
+    on:
+      tags: true
+  - provider: snap
+    snap: letsvote
+    channel: edge
+    skip_cleanup: true
